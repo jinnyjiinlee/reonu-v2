@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 180" width="880" height="180">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&amp;display=block');
+    text {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 800;
+      font-size: 180px;
+      letter-spacing: -0.03em;
+      fill: #1F1F1F;
+    }
+  </style>
+  <text x="0" y="162" dominant-baseline="auto">REONU</text>
+</svg>

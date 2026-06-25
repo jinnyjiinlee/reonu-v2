@@ -7,7 +7,7 @@ export default function SectionLabel({
 }) {
   return (
     <div
-      className="absolute font-display text-[16px] leading-[19px] font-normal tracking-[-0.01em] text-[#999999]"
+      className="absolute font-headline text-[16px] leading-[19px] font-normal tracking-[-0.01em] text-[#86868B]"
       style={{ right: 60, top }}
     >
       ({num})

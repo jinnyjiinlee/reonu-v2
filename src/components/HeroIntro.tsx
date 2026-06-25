@@ -1,34 +1,14 @@
+"use client";
+
+// Always English, regardless of the KR/EN language toggle.
 export default function HeroIntro() {
   return (
-    <>
-      {/* (01) label — secondary gray */}
-      <div
-        className="absolute font-display text-[16px] leading-[19px] font-normal tracking-[-0.01em] text-[#999999]"
-        style={{ left: 60, top: 164 }}
-      >
-        (01)
-      </div>
-
-      {/* Intro copy (English body) — Figma: Inter Regular 18px #444444 */}
-      <div
-        className="absolute font-display text-[18px] leading-[22px] font-normal tracking-[-0.005em] text-[#444444]"
-        style={{ left: 60, top: 223, width: 427 }}
-      >
-        REONU — design studio dedicated to uncovering
-        <br />
-        the value already within a brand and turning it into
-        <br />
-        clear, scalable design.
-      </div>
-
-      {/* "-> Start Project" — underline link, 28px Regular */}
-      <a
-        href="#contact"
-        className="absolute font-display text-[28px] leading-[34px] font-normal tracking-[-0.01em] text-[#1F1F1F] underline underline-offset-4 hover:opacity-60 transition-opacity"
-        style={{ right: 60, top: 258 }}
-      >
-        →&nbsp;&nbsp;Start Project
-      </a>
-    </>
+    <div
+      className="absolute font-headline text-[20px] font-medium text-[#1D1D1F]"
+      style={{ left: 60, top: 504, width: 520, fontWeight: 500, lineHeight: "160%", letterSpacing: 0 }}
+    >
+      <span style={{ color: "#1D1D1F", letterSpacing: "-0.02em", fontWeight: 800 }}>REONU®</span>
+      {" — design studio dedicated to uncovering"}<br />{"the value already within a brand and turning it into"}<br />{"clear, scalable design."}
+    </div>
   );
 }
