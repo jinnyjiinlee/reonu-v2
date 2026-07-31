@@ -1,54 +1,25 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react"; // useLayoutEffect used in WorkCard pill animation
 import { useLang } from "@/context/LanguageContext";
+import { useFilterCtx } from "@/context/FilterContext";
 import {
-  CATEGORIES, CATEGORY_LABELS, IMAGES, WORKS_DATA,
-  type Filter, type WorkItem,
+  CATEGORY_LABELS, IMAGES, WORKS_DATA,
+  type WorkItem,
 } from "@/data/works";
 
 const PAD      = 60;
-const COL_GAP  = 40; // 3 cols, content width 1800 → COL_W = (1800 - 40*2)/3
-const COL_W    = (1920 - PAD * 2 - COL_GAP * 2) / 3; // ≈ 573.33
-const COL_H    = COL_W * (920 / 700); // 700:920 ratio, scaled to COL_W → ≈ 753.78
-// paddingTop(32) + category(17) + gap(12) + title, clamped to
-// 2 lines (68) = 129, rounded up for breathing room.
-const LABEL_H  = 132;
-const ROW_GAP  = 40; // matches COL_GAP for a uniform grid gap
-const ROW_STRIDE = COL_H + LABEL_H + ROW_GAP; // ≈ 917.78
+const COL_GAP  = 24;                              // matches SelectedWork on main page
+const COL_W    = (1920 - PAD * 2 - COL_GAP) / 2; // (1920-120-24)/2 = 888
+const COL_H    = 800;                             // matches SelectedWork ROW1_H on main page
+const LABEL_H  = 0;   // labels removed — image-only grid
+const ROW_GAP  = 24;                              // matches SelectedWork on main page
+const ROW_STRIDE = COL_H + LABEL_H + ROW_GAP;    // 800+132+24 = 956
 
-// Parallax — total px range the image drifts inside its (clipped) frame as the
-// card crosses the viewport. The image is rendered taller than its frame —
-// OVERSCAN_PCT extra on top and bottom each — so translating it by up to
-// ±PARALLAX_RANGE/2 never reveals empty space at the edges.
-const PARALLAX_RANGE  = 80;
-const OVERSCAN_PCT    = 8; // image height = 100% + 2*8% = 116%
+// GRID_START_Y is computed dynamically in WorksContent based on viewport width.
+// At 1920px it equals 720; at smaller viewports it's higher (in canvas px) so the
+// first card aligns exactly with the bottom of the hero section in real px.
 
-const REONU_BOTTOM = 440;  // REONU hero bottom edge (HEADER_H 66 + GAP 134 + HERO_H 240)
-const CHIPS_Y      = REONU_BOTTOM + 200; // 640 — REONU_bottom -200-> chips
-const CHIPS_H      = 24;                 // plain-text chip row line-height
-const GRID_START_Y = CHIPS_Y + CHIPS_H + 40; // 664 — chips -40-> grid
-
-/* ── View toggle icons ───────────────────────────────────────────────────── */
-function GridIcon({ color }: { color: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      <rect x="1" y="1" width="6.5" height="6.5" rx="1" stroke={color} strokeWidth="1.4" />
-      <rect x="10.5" y="1" width="6.5" height="6.5" rx="1" stroke={color} strokeWidth="1.4" />
-      <rect x="1" y="10.5" width="6.5" height="6.5" rx="1" stroke={color} strokeWidth="1.4" />
-      <rect x="10.5" y="10.5" width="6.5" height="6.5" rx="1" stroke={color} strokeWidth="1.4" />
-    </svg>
-  );
-}
-function ListIcon({ color }: { color: string }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      <line x1="1" y1="3.5"  x2="17" y2="3.5"  stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="1" y1="9"    x2="17" y2="9"    stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="1" y1="14.5" x2="17" y2="14.5" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /* ── List view — compact scannable rows with a cursor-following hover
     preview thumbnail (image swapped per row, smoothed via RAF). ── */
@@ -120,14 +91,14 @@ function ListView({ data }: { data: WorkItem[] }) {
           <span
             style={{
               flex: 1, fontSize: 24, lineHeight: "29px", fontWeight: 700,
-              letterSpacing: "-0.02em", color: "#1D1D1F",
+              letterSpacing: "-0.025em", color: "#1D1D1F",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               paddingRight: 24,
             }}
           >
             {item.title[lang]}
           </span>
-          <span style={{ width: 100, textAlign: "right", fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em", color: "#6E6E73" }}>
+          <span style={{ width: 100, textAlign: "right", fontSize: 16, fontWeight: 700, letterSpacing: "0.06em", color: "#6E6E73" }}>
             {CATEGORY_LABELS[item.category]}
           </span>
         </a>
@@ -153,23 +124,88 @@ function ListView({ data }: { data: WorkItem[] }) {
 }
 
 /* ── WorkCard ─────────────────────────────────────────────────────────────── */
-function WorkCard({
-  item, x, y, onRegisterParallax,
-}: {
-  item: WorkItem; x: number; y: number;
-  onRegisterParallax?: (card: HTMLElement, img: HTMLElement) => () => void;
-}) {
+function WorkCard({ item, index }: { item: WorkItem; index: number }) {
   const cardRef        = useRef<HTMLAnchorElement>(null);
   const pillRef        = useRef<HTMLSpanElement>(null);
   const imgWrapRef     = useRef<HTMLDivElement>(null);
-  const imgRef         = useRef<HTMLImageElement>(null);
   const overlayRef     = useRef<HTMLDivElement>(null);
+  const revealRef      = useRef<HTMLDivElement>(null);
+  const catRef         = useRef<HTMLSpanElement>(null);          // category — fade only
+  const titleCharRefs  = useRef<(HTMLSpanElement | null)[]>([]); // title — per-char clip
+
+  // Scroll reveal — bidirectional: plays on every entry (down scroll + up scroll re-entry)
+  useEffect(() => {
+    const el = revealRef.current;
+    if (!el) return;
+
+    const cardDelay  = (index % 2 === 1) ? 120 : 0;
+    const catDelay   = cardDelay + 200;
+    const titleDelay = cardDelay + 320;
+
+    const CARD_TR = `opacity 0.85s cubic-bezier(0.4,0,0.2,1) ${cardDelay}ms, transform 0.85s cubic-bezier(0.4,0,0.2,1) ${cardDelay}ms`;
+    const CAT_TR  = `opacity 0.7s cubic-bezier(0.4,0,0.2,1) ${catDelay}ms`;
+
+    const applyTransitions = () => {
+      el.style.transition = CARD_TR;
+      const c = catRef.current;
+      if (c) c.style.transition = CAT_TR;
+      titleCharRefs.current.forEach((ch, i) => {
+        if (!ch) return;
+        ch.style.transition = `transform 0.55s cubic-bezier(0.4,0,0.2,1) ${titleDelay + i * 22}ms`;
+      });
+    };
+
+    const resetHidden = () => {
+      // Instant reset — no animation
+      el.style.transition = "none";
+      el.style.opacity    = "0";
+      el.style.transform  = "translateY(40px)";
+      const c = catRef.current;
+      if (c) { c.style.transition = "none"; c.style.opacity = "0"; }
+      titleCharRefs.current.forEach(ch => {
+        if (!ch) return;
+        ch.style.transition = "none";
+        ch.style.transform  = "translateY(110%)";
+      });
+    };
+
+    const reveal = () => {
+      el.style.opacity   = "1";
+      el.style.transform = "translateY(0)";
+      const c = catRef.current;
+      if (c) c.style.opacity = "1";
+      titleCharRefs.current.forEach(ch => { if (ch) ch.style.transform = "translateY(0)"; });
+    };
+
+    // 1. Set hidden state before first paint
+    resetHidden();
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          reveal();
+        } else {
+          // Card exited viewport — reset instantly, re-apply transitions for next entry
+          resetHidden();
+          requestAnimationFrame(() => applyTransitions());
+        }
+      },
+      { threshold: 0.08 }
+    );
+
+    // 2. Apply transitions after first paint, then start observing
+    requestAnimationFrame(() => {
+      applyTransitions();
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [index]);
 
   useLayoutEffect(() => {
     const card = cardRef.current;
     const pill = pillRef.current;
-    const unregister = card && imgRef.current ? onRegisterParallax?.(card, imgRef.current) : undefined;
-    if (!card || !pill) return () => unregister?.();
+    if (!card || !pill) return;
 
     let ptx = COL_W / 2, pty = COL_H / 2;
     let prx = ptx,        pry = pty;
@@ -204,22 +240,21 @@ function WorkCard({
       const { lx, ly } = toLayout(e.clientX, e.clientY);
       prx = lx + 16; pry = ly + 16; ptx = prx; pty = pry;
       pill.style.opacity = "1";
-      if (imgWrapRef.current) imgWrapRef.current.style.filter = "brightness(0.82)";
-      if (overlayRef.current) overlayRef.current.style.opacity = "1";
+      if (imgWrapRef.current)    imgWrapRef.current.style.filter    = "brightness(0.82)";
+      if (overlayRef.current)    overlayRef.current.style.opacity    = "1";
       startTick();
     };
     const onLeave = () => {
       hovering = false;
       pill.style.opacity = "0";
-      if (imgWrapRef.current) imgWrapRef.current.style.filter = "";
-      if (overlayRef.current) overlayRef.current.style.opacity = "0";
+      if (imgWrapRef.current)    imgWrapRef.current.style.filter    = "";
+      if (overlayRef.current)    overlayRef.current.style.opacity    = "0";
     };
 
     card.addEventListener("mousemove",  onMove);
     card.addEventListener("mouseenter", onEnter);
     card.addEventListener("mouseleave", onLeave);
     return () => {
-      unregister?.();
       cancelAnimationFrame(raf);
       card.removeEventListener("mousemove",  onMove);
       card.removeEventListener("mouseenter", onEnter);
@@ -230,128 +265,120 @@ function WorkCard({
   const { lang } = useLang();
   const title = item.title[lang];
 
-  return (
-    <div className="absolute" style={{ left: x, top: y, width: COL_W }}>
-      {/* Image */}
-      <a
-        ref={cardRef}
-        href={`/works/${item.id}`}
-        data-cursor="hidden"
-        className="block cursor-none"
-        style={{ width: COL_W, height: COL_H, position: "relative", display: "block" }}
-      >
-        <div style={{ position: "absolute", inset: 0, background: "#F5F5F7", overflow: "hidden" }}>
-          <div ref={imgWrapRef} style={{ position: "absolute", inset: 0, transition: "filter 0.5s ease" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              ref={imgRef}
-              src={item.image} alt={title}
-              style={{
-                display: "block", position: "absolute",
-                left: 0, right: 0,
-                top: `-${OVERSCAN_PCT}%`, height: `${100 + OVERSCAN_PCT * 2}%`,
-                width: "100%", objectFit: "cover",
-                willChange: "transform",
-              }}
-            />
-          </div>
-          <div ref={overlayRef} className="pointer-events-none absolute inset-0 bg-black/20"
-               style={{ opacity: 0, transition: "opacity 0.5s ease" }} />
-        </div>
-        <span
-          ref={pillRef}
-          className="pointer-events-none absolute top-0 left-0 flex items-center justify-center rounded-full font-headline text-[18px] leading-[22px] font-normal tracking-[-0.01em] text-white"
-          style={{
-            opacity: 0, transition: "opacity 0.6s ease",
-            paddingInline: 20, paddingBlock: 10,
-            background: "rgba(30,30,30,0.45)",
-            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-            whiteSpace: "nowrap", willChange: "transform", zIndex: 1,
-          }}
-        >
-          Open Project
-        </span>
-      </a>
 
-      {/* Label — category (small) + bold title only. Description removed:
-          a portfolio grid works best scannable (image + category + title),
-          with full project detail left for the project page, not the grid. */}
-      <div style={{ display: "flex", flexDirection: "column", width: COL_W, paddingTop: 32 }}>
-        <span className="font-headline font-normal tracking-[-0.01em] text-[#6E6E73]" style={{ fontSize: 14, lineHeight: "17px", marginBottom: 12 }}>
-          {CATEGORY_LABELS[item.category]}
-        </span>
-        <span
-          className="font-headline font-bold tracking-[-0.02em] text-[#1D1D1F]"
+  return (
+    <div ref={revealRef} style={{ width: COL_W }}>
+    <a
+      ref={cardRef}
+      href={`/works/${item.id}`}
+      data-cursor="hidden"
+      className="block cursor-none"
+      style={{ width: COL_W, height: COL_H, position: "relative", display: "block", textDecoration: "none" }}
+    >
+      <div style={{ position: "absolute", inset: 0, background: "#F5F5F7", overflow: "hidden" }}>
+        <div ref={imgWrapRef} style={{ position: "absolute", inset: 0, transition: "filter 0.5s ease" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.image} alt={title}
+            style={{
+              display: "block", position: "absolute",
+              inset: 0, width: "100%", height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </div>
+        <div ref={overlayRef} className="pointer-events-none absolute inset-0 bg-black/20"
+             style={{ opacity: 0, transition: "opacity 0.5s ease" }} />
+        {/* Bottom label overlay — always visible, Mobius reference style */}
+        <div
+          className="pointer-events-none absolute left-0 right-0 bottom-0"
           style={{
-            fontSize: 28, lineHeight: "34px",
-            display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden",
+            padding: "160px 40px 40px",
+            background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.35) 45%, transparent 100%)",
           }}
         >
-          {title}
-        </span>
+          {/* Category — fade in */}
+          <span
+            ref={catRef}
+            className="font-headline font-bold block"
+            style={{ fontSize: 16, lineHeight: "160%", letterSpacing: "0.06em", color: "rgba(255,255,255,0.55)", marginBottom: 10 }}
+          >
+            {CATEGORY_LABELS[item.category]}
+          </span>
+          {/* Title — per-character clip reveal (each char slides up through overflow:hidden mask) */}
+          <div style={{ maxHeight: 88, overflow: "hidden" }}>
+            <span
+              className="font-headline font-bold tracking-[-0.025em] text-white"
+              style={{ fontSize: 34, lineHeight: "44px" }}
+            >
+              {Array.from(title).map((char, i) => (
+                <span key={i} style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom" }}>
+                  <span
+                    ref={el => { titleCharRefs.current[i] = el; }}
+                    style={{ display: "inline-block" }}
+                  >
+                    {char === " " ? " " : char}
+                  </span>
+                </span>
+              ))}
+            </span>
+          </div>
+        </div>
       </div>
+      <span
+        ref={pillRef}
+        className="pointer-events-none absolute top-0 left-0 flex items-center justify-center rounded-full font-headline text-[18px] leading-[22px] font-normal tracking-[-0.01em] text-white"
+        style={{
+          opacity: 0, transition: "opacity 0.6s ease",
+          paddingInline: 20, paddingBlock: 10,
+          background: "rgba(30,30,30,0.45)",
+          backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+          whiteSpace: "nowrap", willChange: "transform", zIndex: 1,
+        }}
+      >
+        See work
+      </span>
+    </a>
     </div>
   );
 }
 
-// Canvas heights (mirrors page.tsx)
-const ROWS          = 9;
-const GRID_CANVAS_H = GRID_START_Y + (ROWS - 1) * ROW_STRIDE + COL_H + LABEL_H + 320;
-const LIST_BOTTOM_PAD = 320;
-
+const LIST_BOTTOM_PAD = 160;
 /* ── Main ─────────────────────────────────────────────────────────────────── */
 export default function WorksContent() {
-  const [filter, setFilter] = useState<Filter>("All");
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const { filter, view } = useFilterCtx();
+  const { lang } = useLang();
+
   const filteredData = filter === "All" ? WORKS_DATA : WORKS_DATA.filter((w) => w.category === filter);
-  const rootRef = useRef<HTMLDivElement>(null);
 
-  // Parallax — one shared scroll/RAF loop updates every registered card's
-  // image, instead of each card running its own listener.
-  const parallaxRefs = useRef<{ card: HTMLElement; img: HTMLElement }[]>([]);
-  const registerParallax = (card: HTMLElement, img: HTMLElement) => {
-    const entry = { card, img };
-    parallaxRefs.current.push(entry);
-    return () => {
-      parallaxRefs.current = parallaxRefs.current.filter((e) => e !== entry);
-    };
-  };
-
+  // Dynamic GRID_START_Y — converts HERO_H (real px) to canvas px so the first
+  // image card starts exactly where the hero section ends at every viewport width.
+  // Formula mirrors WorksHeroIntro.tsx: HERO_H = "min(calc(14.0625vw + 450px), 720px)"
+  const [gridStartY, setGridStartY] = useState(720);
   useEffect(() => {
-    let raf = 0;
-
     const update = () => {
-      const vh = window.innerHeight;
-      for (const { card, img } of parallaxRefs.current) {
-        const rect = card.getBoundingClientRect();
-        const progress = (vh - rect.top) / (vh + rect.height); // 0 → 1 crossing viewport
-        const clamped = Math.min(Math.max(progress, 0), 1);
-        const offset = (clamped - 0.5) * PARALLAX_RANGE;
-        img.style.transform = `translateY(${offset}px)`;
-      }
-      raf = 0;
+      const vw    = window.innerWidth;
+      const scale = Math.min(vw / 1920, 1);
+      const heroH = Math.min(0.140625 * vw + 450, 720); // real px
+      setGridStartY(Math.ceil(heroH / scale));           // canvas px
     };
-
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Dynamically resize the ScaleStage canvas when switching between
-  // grid (tall) and list (short) view so the footer is always reachable.
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Dynamically resize the ScaleStage canvas when switching between grid and list view,
+  // or when gridStartY changes due to viewport resize.
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
     const scale = Math.min(window.innerWidth / 1920, 1);
-    const listH = GRID_START_Y + filteredData.length * LIST_ROW_H + LIST_BOTTOM_PAD;
-    const newH  = view === "list" ? listH : GRID_CANVAS_H;
+    const listH = gridStartY + filteredData.length * LIST_ROW_H + LIST_BOTTOM_PAD;
+    const rows  = Math.ceil(filteredData.length / 2);
+    const gridH = gridStartY + rows * ROW_STRIDE + 160;
+    const newH  = view === "list" ? listH : gridH;
 
     const main        = el.closest("main") as HTMLElement | null;
     const innerDiv    = main?.parentElement as HTMLElement | null;   // ScaleStage inner div
@@ -360,90 +387,34 @@ export default function WorksContent() {
     if (main)      main.style.height      = `${newH}px`;
     if (innerDiv)  innerDiv.style.height  = `${newH}px`;
     if (outerWrap) outerWrap.style.height = `${newH * scale}px`;
-  }, [view, filteredData.length]);
+  }, [view, filteredData.length, gridStartY]);
 
   return (
     <>
       <div ref={rootRef} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} />
-      {/* ── Description — right edge flush with PAD, BOTTOM flush with REONU bottom ──
-          width: max-content (instead of a fixed px width) so the box sizes to
-          its own longest line — with `right: PAD` anchoring, that makes the
-          longest line's right edge land exactly on the PAD boundary, the same
-          one REONU/nav use, while text stays left-aligned (shorter lines just
-          fall short of the right edge naturally, by design).
-          3 lines × 32px line-box (160% of 20px font) = 96px block height. Anchor
-          so the block's bottom edge sits on REONU_BOTTOM, with +6 to offset the
-          bottom half-leading (lineHeight 32 - fontSize 20 = 12, /2 = 6px of empty
-          space below the glyph's visible bottom) so the glyph itself — not just
-          the line box — lands flush on the line. */}
-      <p
-        className="absolute font-headline font-medium text-[#1D1D1F]"
-        style={{ right: PAD, top: REONU_BOTTOM - 96 + 6, width: "max-content", fontSize: 20, fontWeight: 500, lineHeight: "160%", letterSpacing: 0 }}
-      >
-        {/* Always English, regardless of the KR/EN language toggle. */}
-        <span style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>REONU®</span> — beyond good-looking design, building<br />work that gives real strength to a brand. Take a look<br />at the projects we&apos;ve worked on together so far.
-      </p>
-
-      {/* ── Category filter — plain text tabs, no pill/border (wording unified
-          with OurService's BX/UXUI/EDIT Design titles, style as before). ── */}
-      <div className="absolute flex items-center" style={{ left: PAD, top: CHIPS_Y, gap: 32 }}>
-        {CATEGORIES.map((cat) => {
-          const active = filter === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              data-cursor="hidden"
-              className="font-headline tracking-[-0.01em] cursor-none outline-none"
-              style={{
-                fontSize: 20, lineHeight: "24px",
-                fontWeight: active ? 700 : 500,
-                color: active ? "#1D1D1F" : "#86868B",
-                background: "none", border: "none", padding: 0,
-                transition: "color 0.25s ease",
-              }}
-            >
-              {CATEGORY_LABELS[cat]}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── View toggle — grid (default) / list ── */}
-      <div className="absolute flex items-center" style={{ right: PAD, top: CHIPS_Y + 3, gap: 14 }}>
-        <span className="font-headline tracking-[-0.01em]" style={{ fontSize: 14, fontWeight: 500, color: "#86868B" }}>
-          VIEW
-        </span>
-        <span style={{ width: 1, height: 16, background: "#86868B" }} />
-        <button
-          onClick={() => setView("grid")}
-          data-cursor="hidden"
-          className="cursor-none outline-none"
-          style={{ background: "none", border: "none", padding: 0, display: "flex" }}
-        >
-          <GridIcon color={view === "grid" ? "#1D1D1F" : "#86868B"} />
-        </button>
-        <button
-          onClick={() => setView("list")}
-          data-cursor="hidden"
-          className="cursor-none outline-none"
-          style={{ background: "none", border: "none", padding: 0, display: "flex" }}
-        >
-          <ListIcon color={view === "list" ? "#1D1D1F" : "#86868B"} />
-        </button>
-      </div>
+      {/* ── Category filter chips + view toggle are rendered by WorksChips (outside canvas) ── */}
 
       {/* ── Project grid / list ── */}
       {view === "grid" ? (
-        filteredData.map((item, i) => {
-          const row = Math.floor(i / 3);
-          const col = i % 3;
-          const x = PAD + col * (COL_W + COL_GAP);
-          const y = GRID_START_Y + row * ROW_STRIDE;
-          return <WorkCard key={item.id} item={item} x={x} y={y} onRegisterParallax={registerParallax} />;
-        })
+        <div
+          className="absolute"
+          style={{
+            left: PAD,
+            top: gridStartY,
+            display: "flex",
+            flexWrap: "wrap",
+            columnGap: COL_GAP,
+            rowGap: ROW_GAP,
+            width: 1920 - PAD * 2,
+            alignContent: "flex-start",
+          }}
+        >
+          {filteredData.map((item, i) => (
+            <WorkCard key={item.id} item={item} index={i} />
+          ))}
+        </div>
       ) : (
-        <div className="absolute" style={{ left: PAD, top: GRID_START_Y, width: 1800 }}>
+        <div className="absolute" style={{ left: PAD, top: gridStartY, width: 1800 }}>
           <ListView data={filteredData} />
         </div>
       )}

@@ -7,16 +7,16 @@
 // it safely.
 
 export type Category = "UX/UI" | "Branding" | "Editorial";
-export const CATEGORIES = ["All", "UX/UI", "Branding", "Editorial"] as const;
+export const CATEGORIES = ["All", "Branding", "UX/UI", "Editorial"] as const;
 export type Filter = (typeof CATEGORIES)[number];
 
 // Wording based on OurService's BX/UXUI/EDIT naming, "Design" dropped for
 // scannable filter tabs.
 export const CATEGORY_LABELS: Record<Filter, string> = {
-  All: "All",
-  "UX/UI": "UXUI",
-  Branding: "BX",
-  Editorial: "EDIT",
+  All: "ALL",
+  "UX/UI": "Digital",
+  Branding: "Brand",
+  Editorial: "Editorial",
 };
 
 export interface Localized {

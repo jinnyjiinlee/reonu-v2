@@ -19,7 +19,15 @@ const DESIGN_W = 1920;
  * always match the canvas's color exactly — no overlay/tint that could create a
  * mismatch between the margins and the canvas during the reveal animation.
  */
-export default function FooterReveal({ height }: { height: number }) {
+export default function FooterReveal({
+  height,
+  showSpacer  = true,
+  showFooter  = true,
+}: {
+  height:      number;
+  showSpacer?: boolean;
+  showFooter?: boolean;
+}) {
   const FOOTER_CANVAS_H = height;
   const [scale, setScale] = useState(1);
 
@@ -40,13 +48,16 @@ export default function FooterReveal({ height }: { height: number }) {
 
   return (
     <>
-      {/* Spacer — reserves scroll room for the footer to be revealed into */}
-      <div style={{ height: stageHeight }} />
+      {/* Spacer — reserves scroll room for the footer to be revealed into.
+          Must live inside #scroll-wrapper so it contributes to maxScroll. */}
+      {/* pointerEvents:none — spacer has no content/bg so blocking clicks is unintentional.
+          Without this, the spacer div intercepts clicks meant for the fixed footer below. */}
+      {showSpacer && <div style={{ height: stageHeight, pointerEvents: "none" }} />}
 
-      {/* Fixed footer stage, sits behind the main canvas. White everywhere,
-          including the side margins on screens wider than the 1920px canvas. */}
-      <div
-        className="fixed inset-x-0 bottom-0 bg-white"
+      {/* Fixed footer stage — sits behind the main canvas (z:0).
+          Clicks reach it because the spacer above has pointer-events:none. */}
+      {showFooter && <div
+        className="footer-reveal-stage fixed inset-x-0 bottom-0 bg-white"
         style={{ height: stageHeight, overflow: "hidden", zIndex: 0 }}
       >
         <div
@@ -61,10 +72,10 @@ export default function FooterReveal({ height }: { height: number }) {
               transformOrigin: "top left",
             }}
           >
-            <Footer />
+            <Footer navFontSize={14 / scale} />
           </div>
         </div>
-      </div>
+      </div>}
     </>
   );
 }

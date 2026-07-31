@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  /* Inter (영문) + Pretendard (한글 fallback) */
-  --font-sans: var(--font-inter), "Inter", "Pretendard Variable", "Pretendard",
+  /* Inter Display (영문) + Pretendard (한글 fallback) */
+  --font-sans: "Inter Display", var(--font-inter), "Pretendard Variable", "Pretendard",
     -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
   /* Exact Figma color tokens — pulled directly from frame 1:23 sub-layers */
@@ -21,9 +21,58 @@
    utility-class issue was fixed and the server fully restarted. This direct
    form matches the one pattern that's been proven to work all along. */
 .font-headline {
-  font-family: var(--font-inter), "Inter", "Pretendard Variable", "Pretendard",
+  font-family: "Inter Display", var(--font-inter), "Pretendard Variable", "Pretendard",
     -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
+
+/* Inter Display — header elements (logo, tagline, nav), matching reference site */
+.font-display-headline {
+  font-family: "Inter Display", var(--font-inter), "Inter",
+    -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* Sun icon — continuous rotation */
+@keyframes sun-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.sun-spin {
+  animation: sun-spin 10s linear infinite;
+  will-change: transform;
+}
+
+/* Zzz icon — matches midu.design Lottie:
+   3 Z shapes at fixed triangle positions (center-bottom, left-middle, right-top).
+   Each Z pops from scale(0) → scale(1) → scale(0). Opacity is constant (1) in
+   the Lottie; scale=0 is effectively invisible. Stagger creates brief 2-Z
+   staircase at transitions; dead zone creates the visible gap before next cycle.
+   transform-box:fill-box makes scale() originate from each Z's own center. */
+.zzz-z1, .zzz-z2, .zzz-z3 {
+  transform-box: fill-box;
+  /* "center bottom" replicates Lottie anchor below the Z:
+     scale from the bottom edge → Z floats UP as it grows */
+  transform-origin: center bottom;
+  will-change: transform;
+}
+@keyframes zzz-pop {
+  /* Matches Lottie asymmetric easing measured from DevTools:
+     - Rise  (0→60%): ease-in — very slow start, rapid finish → "float up" feel
+     - Hold  (60→72%): linear
+     - Fall  (72→82%): ease-out — starts fast → quick collapse
+     - Dead  (82→100%): invisible gap before next cycle
+     No opacity animation (Lottie keeps opacity:1 always; scale=0 = invisible) */
+  0%   { transform: scale(0); animation-timing-function: cubic-bezier(0.4, 0, 1, 0.6); }
+  60%  { transform: scale(1); animation-timing-function: linear; }
+  72%  { transform: scale(1); animation-timing-function: cubic-bezier(0, 0, 0.6, 1); }
+  82%  { transform: scale(0); animation-timing-function: step-start; }
+  100% { transform: scale(0); }
+}
+/* D=2.0s, stagger=0.3s
+   Z1 peak at 1.2s, Z2 at 1.5s, Z3 at 1.8s
+   Effective gap ≈ 0.2s before next cycle */
+.zzz-z1 { animation: zzz-pop 2.0s linear infinite 0s; }
+.zzz-z2 { animation: zzz-pop 2.0s linear infinite 0.3s; }
+.zzz-z3 { animation: zzz-pop 2.0s linear infinite 0.6s; }
 
 html,
 body {
@@ -31,15 +80,20 @@ body {
   color: #1d1d1f;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* Virtual scroll: disable native scroll — SmoothScroll.tsx drives everything
+     via translate3d on #scroll-wrapper (compositor-only, zero layout/paint). */
+  overflow: hidden;
+  height: 100%;
   /* Force a light color scheme so Chrome's auto-dark-mode (if enabled) doesn't
      repaint the plain white page/canvas background as gray. */
   color-scheme: light only;
+  /* Smooth dark-mode section transition (header is transparent, body bg shows through) */
+  transition: background-color 0.6s ease;
 }
 
 body,
 * {
-  font-family: var(--font-inter), "Inter", "Pretendard Variable", "Pretendard",
+  font-family: "Inter Display", var(--font-inter), "Pretendard Variable", "Pretendard",
     -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
@@ -53,7 +107,15 @@ input,
 select,
 textarea,
 label {
-  cursor: none !important;
+  cursor: default;
+}
+
+/* ── Text reveal animations (Möbius-style / Our Service style) ───────────
+   line-reveal : element slides up from below an overflow:hidden container.
+   Used for REONU per-char stagger and each paragraph line.                 */
+@keyframes line-reveal {
+  from { transform: translateY(115%); }
+  to   { transform: translateY(0%);   }
 }
 
 /* Marquee animations */
@@ -82,7 +144,7 @@ label {
   outline: 0;
   padding: 0;
   margin: 0;
-  cursor: none;
+  cursor: default;
   font: inherit;
   color: inherit;
 }
@@ -100,7 +162,7 @@ label {
 }
 .bare-input::placeholder,
 .bare-textarea::placeholder {
-  color: #86868B;
+  color: #00000099;
 }
 .bare-textarea::-webkit-resizer {
   display: none;
@@ -130,10 +192,10 @@ label {
   left: 0;
   width: 100%;
   height: 2px;
-  background: #1D1D1F;
+  background: currentColor;
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1), background-color 0.5s ease;
 }
 .nav-item:hover::after {
   transform: scaleX(1);
@@ -190,6 +252,64 @@ body.intro-active header {
   pointer-events: none;
 }
 
+/* Header: background managed by Header.tsx (transparent on scroll > 80px).
+   Color transition kept for OurProcess dark-mode compatibility. */
+header {
+  color: #1D1D1F;
+}
+
+/* OurProcess dark mode — header is transparent; only text colors transition */
+nav a, nav button {
+  transition: color 0.6s ease;
+}
+
+/* dark-process: header text — logo/tagline/nav 요소에 mix-blend-mode:difference 적용으로
+   OurProcess 어두운 배경에서도 자동으로 밝게 처리됨 (별도 color 전환 불필요).
+   아래 규칙은 호환성을 위해 유지 */
+html.dark-process header {
+  color: #ffffff !important;
+}
+html.dark-process header a,
+html.dark-process header button {
+  color: inherit !important;
+}
+
+/* Partners fade overlays — use opacity on ::after for smooth gradient transition
+   (CSS cannot interpolate between gradient values directly) */
+.partners-fade-left,
+.partners-fade-right {
+  position: absolute; /* already set inline, just ensuring stacking context */
+}
+.partners-fade-left::after,
+.partners-fade-right::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.partners-fade-left::after {
+  background: linear-gradient(to right, #1D1D1F 0%, #1D1D1F 33.33%, rgba(29,29,31,0) 100%);
+}
+.partners-fade-right::after {
+  background: linear-gradient(to left, #1D1D1F 0%, #1D1D1F 33.33%, rgba(29,29,31,0) 100%);
+}
+html.dark-process .partners-fade-left::after,
+html.dark-process .partners-fade-right::after {
+  opacity: 1;
+}
+
+/* ── Responsive header ───────────────────────────────────────────────────────
+   Hide the centre tagline below 1100px so the logo and nav links always have
+   enough room without wrapping or overflowing. The nav gap already uses
+   clamp(20px, 3.125vw, 60px) so it tightens smoothly before this breakpoint. */
+@media (max-width: 1100px) {
+  .header-tagline {
+    display: none !important;
+  }
+}
+
 /* Form field validation message — Apple-style fade + slide in */
 @keyframes field-error-in {
   from {
@@ -203,4 +323,47 @@ body.intro-active header {
 }
 .field-error {
   animation: field-error-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Mobile / Tablet responsive overrides (<1024px) ────────────────────────
+   The desktop layout uses a fixed-size 1920px ScaleStage canvas with
+   SmoothScroll (overflow:hidden on html/body). On mobile we want:
+   • Native scroll  (overflow: auto, height: auto)
+   • Native cursors (cursor: pointer on interactive elements)
+   • Desktop canvas hidden  (#scroll-wrapper hidden)
+   • Desktop fixed footer hidden (.footer-reveal-stage hidden)
+   The JS components (SmoothScroll, IntroAnimation, CustomCursor) also
+   bail early on mobile — these CSS rules are a belt-and-suspenders guard. */
+@media (max-width: 1023px) {
+  html, body {
+    overflow: auto !important;
+    height: auto !important;
+  }
+
+  /* Restore native cursor everywhere */
+  html, body, a, button, input, select, textarea, label {
+    cursor: auto !important;
+  }
+  a[href], button, [role="button"], label[for] {
+    cursor: pointer !important;
+  }
+  input[type="text"], input[type="email"], textarea, select {
+    cursor: text !important;
+  }
+
+  /* Hide the desktop ScaleStage canvas scroll-wrapper */
+  #scroll-wrapper {
+    display: none !important;
+  }
+
+  /* Hide the desktop fixed footer reveal stage */
+  .footer-reveal-stage {
+    display: none !important;
+  }
+
+  /* Prevent IntroAnimation elements from interfering on mobile */
+  body.intro-active header {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
 }

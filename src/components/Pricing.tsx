@@ -7,26 +7,26 @@ import SplitTextReveal from "@/components/SplitTextReveal";
 
 const EASE     = "cubic-bezier(0.4, 0, 0.2, 1)";
 const FADE_DUR = "0.7s";
-const DUR      = "0.5s";
-const GAP      = 20;
-const ARR      = 36;
-const SLOT     = ARR + GAP;
+// StartProjectBtn constants (mirrors OurService)
+const BTN_ARR_W = 26;
+const BTN_ARR_H = 26;
+const BTN_GAP   = 18;
 
-const DESIGN_W             = 1920;
-const HEADING_CANVAS_Y      = 7724;
-const ROW_H                 = 450;
-const ROW_TOPS              = [7798, 8447, 9096] as const;
-const SECTION_END_Y         = ROW_TOPS[2] + ROW_H;          // 9713
-const STICKY_TOP            = 166;
-// Unglue when UXUI Design row starts — heading then tracks with it (like OurService).
-const HEADING_STICK_END_Y    = ROW_TOPS[1];                  // 8447
-const BOTTOM_CANVAS_Y        = HEADING_CANVAS_Y + 650;        // 8541
-const STICKY_BOTTOM          = 200;
-const BOTTOM_ELEMENT_H       = 116;   // desc(68) + StartProjectBtn(48) in canvas px
-// Sticky elements fade out (instead of sliding/jumping or suddenly starting to
-// move) over the last bit of their pinned range, ending right at their unglue
-// point — masks the velocity change when they go from "stuck" to "scrolling".
-const FADE_RANGE             = 100;
+const DESIGN_W          = 1920;
+const LEFT_COL_W        = 880;
+// 04/ bottom ≈ 7382+stickyH-40 → +200 screen gap → Pricing heading at 8440
+const PRICING_WRAPPER_Y = 8240;
+// Left column spacer (= gap between sections, same as OurProcess paddingTop pattern)
+const LEFT_SPACER       = 200;
+const HEADING_CANVAS_Y  = PRICING_WRAPPER_Y + LEFT_SPACER;   // 8440
+
+// Inter-row gap in rowsWrapper (canvas px): mirrors OurService INTER_ROW(180) spacing
+const ROW_GAP           = 180;
+// ROW_TOPS[0]=8440 → right col spacer = LEFT_SPACER = 200 (aligns with Pricing heading)
+const RIGHT_SPACER      = 194;   // 200 − 6px optical correction (64px cap sits 6px lower than 34px cap)
+// Absolute canvas Y (used only as fallback in sticky JS):
+const SECTION_END_Y     = 10262;
+const STICKY_TOP        = 166;
 
 /* ── Intersection Observer fade-in hook ── */
 function useFadeIn(delay = 0) {
@@ -52,334 +52,472 @@ function useFadeIn(delay = 0) {
   return ref;
 }
 
-const ArrowSVG = () => (
-  <svg width="36" height="22" viewBox="0 0 36 22" fill="none" aria-hidden="true"
-       style={{ display: "block", flexShrink: 0 }}>
-    <line x1="8"  y1="11" x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
-    <line x1="19" y1="3"  x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
-    <line x1="19" y1="19" x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
+const BtnArrowSVG = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={BTN_ARR_W} height={BTN_ARR_H}
+    viewBox="0 0 24 24" fill="none" aria-hidden="true"
+    style={{ display: "block", flexShrink: 0 }}
+  >
+    <path d="M5 12h14M12 5l7 7-7 7" stroke="#000000e6" strokeWidth="2.34" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 export function StartProjectBtn({ label = "Let's Talk", href = "#contact" }: { label?: string; href?: string }) {
   const [hov, setHov] = useState(false);
+  const [textW, setTextW] = useState(0);
   const textRef = useRef<HTMLSpanElement>(null);
-  const [clipW, setClipW] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     const measure = () => {
-      if (textRef.current)
-        setClipW(Math.ceil(textRef.current.getBoundingClientRect().width) + SLOT + 2);
+      if (!textRef.current) return;
+      const rect = textRef.current.getBoundingClientRect();
+      if (rect.width === 0) return;
+      const scale = Math.min(window.innerWidth / 1920, 1);
+      setTextW(Math.round(rect.width / scale));
     };
     measure();
     document.fonts.ready.then(measure);
-  }, [label]);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const ready = textW > 0;
+  const T = ready ? `transform 0.42s ${EASE}` : "none";
+  const containerW = ready ? BTN_ARR_W + BTN_GAP + textW + 12 : undefined;
 
   return (
-    <div data-cursor="hidden" style={{ width: clipW ?? "max-content", overflow: "hidden" }}>
+    <div
+      data-cursor="hidden"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ display: "inline-block" }}
+    >
       <a
         href={href}
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        className="font-headline text-[28px] leading-[34px] font-medium tracking-[-0.01em] text-[#1D1D1F] no-underline"
         style={{
-          display: "inline-flex", alignItems: "center", gap: GAP, paddingBottom: 12,
-          transform: hov ? "translateX(0)" : `translateX(-${SLOT}px)`,
-          transition: `transform ${DUR} ${EASE}`,
+          display: "block", position: "relative",
+          width: containerW ?? "max-content",
+          height: 58, overflow: "hidden", textDecoration: "none",
         }}
       >
-        <span style={{ display: "inline-flex", alignItems: "center", width: ARR }}><ArrowSVG /></span>
-        <span ref={textRef} style={{ whiteSpace: "nowrap" }}>{label}</span>
-        <span style={{ display: "inline-flex", alignItems: "center", width: ARR }}><ArrowSVG /></span>
+        {/* Arrow1 — right side; exits right on hover */}
+        <span style={{
+          position: "absolute", top: "50%", left: 0,
+          display: "inline-flex", alignItems: "center",
+          opacity: hov ? 0 : 1,
+          transform: hov
+            ? `translateY(-50%) translateX(${ready ? textW + BTN_GAP + 40 : 0}px)`
+            : `translateY(-50%) translateX(${ready ? textW + BTN_GAP : 0}px)`,
+          transition: ready
+            ? hov ? `transform 0.42s ${EASE}, opacity 0s` : `transform 0.42s ${EASE}, opacity 0.3s ${EASE}`
+            : "none",
+        }}><BtnArrowSVG /></span>
+
+        {/* Arrow2 — enters from left on hover */}
+        <span style={{
+          position: "absolute", top: "50%", left: 0,
+          display: "inline-flex", alignItems: "center",
+          opacity: hov ? 1 : 0,
+          transform: hov
+            ? `translateY(-50%) translateX(0px)`
+            : `translateY(-50%) translateX(${-(BTN_ARR_W + 40)}px)`,
+          transition: ready ? `transform 0.42s ${EASE}, opacity 0.2s ${EASE}` : "none",
+        }}><BtnArrowSVG /></span>
+
+        {/* Text */}
+        <span
+          ref={textRef}
+          className="font-headline text-[32px] leading-[32px] font-medium tracking-[-0.01em]"
+          style={{
+            color: "#000000e6",
+            position: "absolute", top: "50%", left: 0,
+            display: "flex", alignItems: "center", whiteSpace: "nowrap",
+            transform: `translateY(-50%) translateX(${ready && hov ? BTN_ARR_W + BTN_GAP : 0}px)`,
+            transition: T,
+          }}
+        >{label}</span>
+
+        {/* Underline */}
+        <span style={{
+          position: "absolute", bottom: 0, left: 0,
+          width: ready ? BTN_ARR_W + BTN_GAP + textW : "100%",
+          height: 2.54, background: "#1D1D1F",
+          transform: hov ? "scaleX(1)" : "scaleX(0)",
+          transformOrigin: "0% 50%",
+          transition: ready ? `transform 0.42s ${EASE}` : "none",
+        }} />
       </a>
-      <span style={{
-        display: "block", height: 1.5, background: "#1D1D1F", marginLeft: 4,
-        transform: hov ? "scaleX(1)" : "scaleX(0)",
-        transformOrigin: "left center",
-        transition: `transform ${DUR} ${EASE}`,
-      }} />
     </div>
   );
 }
 
-const PILL_H   = 48;
-const PILL_CIRCLE = 36;
-const PILL_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
-const PILL_DUR  = "0.5s";
-
-const PillArrowSVG = () => (
-  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ display: "block", flexShrink: 0 }}>
-    <line x1="2" y1="8" x2="13" y2="8" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="8" y1="3" x2="13" y2="8" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="8" y1="13" x2="13" y2="8" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+/* ── Circle-check SVG — mirrors Mobius pricing checklist icon ── */
+const CheckSVG = () => (
+  <svg
+    width="24" height="24" viewBox="0 0 24 24"
+    fill="none" xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    style={{ flexShrink: 0, display: "block" }}
+  >
+    <circle cx="12" cy="12" r="10.5" stroke="#1D1D1F" strokeWidth="1.7" />
+    <path d="M7.5 12.5l3 3 6-6" stroke="#1D1D1F" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
-function LetsTalkPillBtn({ label = "Let's Talk", href = "#contact" }: { label?: string; href?: string }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <a
-      href={href}
-      data-cursor="hidden"
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{
-        display: "inline-flex", alignItems: "center", gap: 12,
-        height: PILL_H, paddingLeft: 28, paddingRight: 8,
-        overflow: "hidden", position: "relative", textDecoration: "none",
-      }}
-    >
-      <span style={{
-        position: "absolute",
-        top: hov ? (PILL_H - PILL_CIRCLE) / 2 : 0,
-        right: hov ? 8 : 0,
-        height: hov ? PILL_CIRCLE : PILL_H,
-        width: hov ? PILL_CIRCLE : "100%",
-        borderRadius: 999, background: "#1D1D1F",
-        transition: `width ${PILL_DUR} ${PILL_EASE}, height ${PILL_DUR} ${PILL_EASE}, top ${PILL_DUR} ${PILL_EASE}, right ${PILL_DUR} ${PILL_EASE}`,
-        zIndex: 0,
-      }} />
-      <span
-        className="font-headline text-[20px] leading-[24px] font-medium tracking-[-0.01em]"
-        style={{
-          whiteSpace: "nowrap", position: "relative", zIndex: 1,
-          color: hov ? "#1D1D1F" : "#ffffff",
-          transform: hov ? "translateX(-28px)" : "translateX(0)",
-          transition: `color ${PILL_DUR} ${PILL_EASE}, transform ${PILL_DUR} ${PILL_EASE}`,
-        }}
-      >
-        {label}
-      </span>
-      <span style={{
-        display: "inline-flex", alignItems: "center", justifyContent: "center",
-        position: "relative", zIndex: 1, flexShrink: 0,
-        width: PILL_CIRCLE, height: PILL_CIRCLE,
-      }}>
-        <PillArrowSVG />
-      </span>
-    </a>
-  );
-}
-
 const PRICED = [
-  { ...services.bx,   price: "₩490,000" },
-  { ...services.uxui, price: "₩790,000" },
-  { ...services.edit, price: "₩250,000" },
-] as const;
+  { ...services.bx,   price: { ko: "₩490,000", en: "$370" } },
+  { ...services.uxui, price: { ko: "₩790,000", en: "$600" } },
+  { ...services.edit, price: { ko: "₩250,000", en: "$190" } },
+];
 
-function CheckIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="#1D1D1F" strokeWidth="1.5" fill="none" />
-      <path
-        d="M8 12.3 11 15.2 16.5 8.8"
-        stroke="#1D1D1F"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-/* ── PriceRow — outer ref for sticky stacking, inner for fade-in ── */
-function PriceRow({ title, desc, chips, price, top, zIndex, outerRef, showDivider }: {
-  title: string; desc: string[]; chips: readonly string[]; price: string; top: number;
-  zIndex: number; outerRef: (el: HTMLDivElement | null) => void; showDivider?: boolean;
+/* ── PriceRow — flex child, mirrors OurService ServiceRow flex-column structure ── */
+function PriceRow({ title, desc, chips, price, lang, outerRef }: {
+  title: string; desc: string[]; chips: readonly string[]; price: { ko: string; en: string };
+  lang: "ko" | "en"; outerRef: (el: HTMLDivElement | null) => void;
 }) {
   const fadeRef = useFadeIn(0);
 
   return (
-    <div
-      ref={outerRef}
-      className="absolute"
-      style={{ left: 880, top, width: 980, height: ROW_H, zIndex }}
-    >
-      <div ref={fadeRef} style={{ position: "relative", width: "100%", height: "100%" }}>
-        <h3 className="absolute font-headline text-[40px] leading-[48px] font-bold tracking-[-0.03em] text-[#1D1D1F]"
-            style={{ top: 0, left: 0 }}>
-          {title}
-        </h3>
+    /*
+     * Flex child — width:100% fills full right column (mirrors OurService ServiceRow).
+     * No explicit height — content drives the height (flex layout, not absolute).
+     */
+    <div ref={outerRef} style={{ width: "100%", flexShrink: 0 }}>
+      {/*
+       * Inner flex-column gap:56 — mirrors OurService ServiceRow inner structure:
+       *   [1] title + desc  (gap:8 inner)
+       *   [2] chips         (gap:56 from [1])
+       *   [3] price section (gap:56 from [2])
+       *   [4] divider       (gap:56 from [3], only between rows)
+       */}
+      <div ref={fadeRef} style={{ display: "flex", flexDirection: "column", gap: 56 }}>
 
-        <p className="absolute font-headline text-[16px] leading-[26px] font-normal tracking-[-0.005em] text-[#333336]"
-           style={{ top: 72, left: 0, width: 400 }}>
-          {desc[0]}<br />{desc[1]}
-        </p>
+        {/* [1] title + desc — gap:10 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <h3 className="font-headline text-[64px] leading-[120%] font-bold tracking-[-0.03em]" style={{ color: "#000000e6" }}>
+            {title}
+          </h3>
+          <p className="font-headline text-[20px] leading-[32px] font-normal tracking-[-0.005em]"
+             style={{ color: "#000000b3" }}>
+            {desc[0]}<br />{desc[1]}
+          </p>
+        </div>
 
-        {chips.map((chip, i) => {
-          const col = i % 2;
-          const row = Math.floor(i / 2);
-          return (
-            <div
-              key={chip}
-              className="absolute flex items-center gap-[8px]"
-              style={{ left: col === 0 ? 0 : 356, top: 172 + row * 56 }}
-            >
-              <CheckIcon />
-              <span className="font-headline text-[16px] leading-[20px] font-medium tracking-[-0.005em] text-[#1D1D1F]">
+        {/* [2] checklist — two flex-column lists side by side */}
+        {(() => {
+          const mid = Math.ceil(chips.length / 2);
+          const leftChips  = chips.slice(0, mid);
+          const rightChips = chips.slice(mid);
+          const ChipItem = ({ chip }: { chip: string }) => (
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <CheckSVG />
+              <span className="font-headline text-[20px] leading-[28px] font-semibold tracking-[-0.005em]" style={{ color: "#000000e6" }}>
                 {chip}
               </span>
             </div>
           );
-        })}
+          return (
+            <div style={{ display: "flex", flexDirection: "row", gap: 40 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+                {leftChips.map((chip) => <ChipItem key={chip} chip={chip} />)}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
+                {rightChips.map((chip) => <ChipItem key={chip} chip={chip} />)}
+              </div>
+            </div>
+          );
+        })()}
 
-        {/* STARTS FROM */}
-        <div
-          className="absolute font-headline text-[14px] leading-[17px] font-medium tracking-[0.08em] text-[#6E6E73]"
-          style={{ left: 3, top: 374 }}
-        >
-          STARTS FROM
+        {/* [3] price section — gap:56 from [2] */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <span className="font-headline text-[16px] font-bold"
+                style={{ color: "#b8b8b8", letterSpacing: "0.02em", lineHeight: "160%" }}>
+            STARTING FROM
+          </span>
+          <div style={{ display: "inline-flex", alignItems: "baseline", gap: 4 }}>
+            <span className="font-headline text-[48px] leading-[58px] font-bold tracking-[-0.03em] text-[#1D1D1F]">
+              {price[lang]}
+            </span>
+            <span className="font-headline text-[48px] leading-[120%] tracking-[-0.03em]" style={{ fontWeight: 700, color: "#f5f5f5" }}>
+              /project
+            </span>
+          </div>
         </div>
 
-        {/* price */}
-        <div
-          className="absolute font-headline text-[40px] leading-[48px] font-bold tracking-[-0.03em] text-[#1D1D1F]"
-          style={{ left: 3, top: 401 }}
-        >
-          {price}
-        </div>
-
-        {/* / PROJECT */}
-        <div
-          className="absolute font-headline text-[38px] leading-[46px] font-bold tracking-[-0.03em] text-[#F5F5F7]"
-          style={{ left: 220, top: 401 }}
-        >
-          / PROJECT
-        </div>
-
-        {/* divider — 100px below price block, next row starts 100px below this */}
-        {showDivider && (
-          <div className="absolute bg-[#F5F5F7]" style={{ left: 0, top: 549, width: 900, height: 1 }} />
-        )}
       </div>
     </div>
   );
 }
 
+/* ── BorderContainer — 1px divider line between price rows ── */
+function BorderContainer() {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: 254,
+        flexShrink: 0,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingLeft: 20,
+        paddingRight: 20,
+      }}
+    >
+      <div style={{ height: 1, width: "100%", backgroundColor: "#88888833" }} />
+    </div>
+  );
+}
+
 /* ── Main ── */
+// Offset from Partners.wrapperTop to Pricing.wrapperTop (canvas px).
+// = Partners canvas height: paddingTop(200) + heading lineH(44) + gap(64) + 2×rows(110) = 528
+const PARTNERS_TO_PRICING_OFFSET = 528;
+
 export default function Pricing() {
   const { lang } = useLang();
-  const headingRef    = useFadeIn(0);
-  const bottomFadeRef = useFadeIn(100);
-  const stickyRef     = useRef<HTMLDivElement>(null);
-  const bottomRef     = useRef<HTMLDivElement>(null);
-  const rowRefs       = useRef<(HTMLDivElement | null)[]>([]);
+  const headingRef     = useFadeIn(0);
+  const bottomFadeRef  = useFadeIn(100);
+  const stickyRef      = useRef<HTMLDivElement>(null);
+  const rowsWrapperRef = useRef<HTMLDivElement>(null);
+  const rowRefs        = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Dynamic top position — updated by partners-end event cascade
+  const [pricingTop, setPricingTop] = useState(PRICING_WRAPPER_Y);
+  // Ref so scroll handler always reads latest value without stale closure
+  const headingCanvasYRef = useRef(HEADING_CANVAS_Y);
+
+  // Listen for Partners to broadcast its wrapperTop and reposition accordingly
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const partnersTop = (e as CustomEvent<{ y: number }>).detail?.y;
+      if (!partnersTop) return;
+      const newTop = Math.round(partnersTop + PARTNERS_TO_PRICING_OFFSET);
+      headingCanvasYRef.current = newTop + LEFT_SPACER;
+      setPricingTop(newTop);
+    };
+    window.addEventListener("partners-end", handler);
+    return () => window.removeEventListener("partners-end", handler);
+  }, []);
+
+  // Sticky unit height = viewport height in canvas px (mirrors OurService / Mobius Sticky Container)
+  const [stickyHeight, setStickyHeight] = useState(1000);
+  // Section height measured from actual DOM (eliminates empty space, mirrors OurService sectionH)
+  const [sectionH, setSectionH] = useState(SECTION_END_Y - PRICING_WRAPPER_Y);
+
+  // After pricingTop changes + DOM re-renders: re-measure dynamicSectionEnd so sticky stickEnd
+  // uses the correct canvas Y, then cascade accurate end position to LetsTalkForm.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      const rowsEl   = rowsWrapperRef.current;
+      const stickyEl = stickyRef.current;
+      if (!rowsEl) return;
+      const scale    = Math.min(window.innerWidth / DESIGN_W, 1);
+      const scrollY  = (window as any).__virtualY ?? 0;
+      const dynamicSectionEnd = (rowsEl.getBoundingClientRect().bottom + scrollY) / scale;
+      const stickyH  = stickyEl ? stickyEl.offsetHeight : layoutCache.current.stickyH;
+      layoutCache.current = { dynamicSectionEnd, stickyH };
+      window.dispatchEvent(new CustomEvent("pricing-end", { detail: { y: dynamicSectionEnd } }));
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [pricingTop]);
+
+  // ── Layout cache: updated only on mount/resize/font-load, NOT per scroll frame ──
+  const layoutCache = useRef({ dynamicSectionEnd: SECTION_END_Y, stickyH: 1000 });
 
   useEffect(() => {
     if (stickyRef.current) {
       stickyRef.current.style.transition = "opacity 0.15s linear";
     }
 
+    // Mirrors OurService: sticky unit height = (viewport - STICKY_TOP) in canvas px
+    const computeStickyHeight = () => {
+      const scale = Math.min(window.innerWidth / DESIGN_W, 1);
+      setStickyHeight(Math.round((window.innerHeight - STICKY_TOP) / scale));
+    };
+
+    // Mirrors OurService: measure actual rowsWrapper DOM height for exact wrapper height
+    const measureSectionH = () => {
+      const rowsEl = rowsWrapperRef.current;
+      if (!rowsEl) return;
+      setSectionH(RIGHT_SPACER + rowsEl.offsetHeight);
+    };
+
+    // Cache layout values — getBoundingClientRect() only called on mount/resize, not per frame
+    const measureLayout = () => {
+      const rowsEl   = rowsWrapperRef.current;
+      const stickyEl = stickyRef.current;
+      const scale    = Math.min(window.innerWidth / DESIGN_W, 1);
+      const scrollY  = (window as any).__virtualY ?? 0;
+
+      const dynamicSectionEnd = rowsEl
+        ? (rowsEl.getBoundingClientRect().bottom + scrollY) / scale
+        : SECTION_END_Y;
+      const stickyH = stickyEl ? stickyEl.offsetHeight : layoutCache.current.stickyH;
+
+      layoutCache.current = { dynamicSectionEnd, stickyH };
+    };
+
+    computeStickyHeight();
+    measureSectionH();
+    measureLayout();
+    document.fonts.ready.then(() => { measureSectionH(); measureLayout(); });
+    window.addEventListener("resize", computeStickyHeight);
+    window.addEventListener("resize", measureSectionH);
+    window.addEventListener("resize", measureLayout);
+
+    // ── Hot scroll path: pure math + DOM writes, zero DOM reads ──
     const update = () => {
       const scale   = Math.min(window.innerWidth / DESIGN_W, 1);
-      const scrollY = window.scrollY;
+      const scrollY = (window as any).__virtualY ?? 0;
 
-      const vh              = window.innerHeight;
-      const stickStart      = HEADING_CANVAS_Y * scale - STICKY_TOP;
-      const headingStickEnd = HEADING_STICK_END_Y * scale - STICKY_TOP;
+      const stickyEl = stickyRef.current;
+      if (!stickyEl) return;
 
-      // ── Left heading sticky ──
-      const headingEl = stickyRef.current;
-      if (headingEl) {
-        if (scrollY < stickStart) {
-          headingEl.style.transform = "";
-          headingEl.style.opacity = "1";
-        } else if (scrollY <= headingStickEnd) {
-          const naturalVY = HEADING_CANVAS_Y * scale - scrollY;
-          headingEl.style.transform = `translateY(${(STICKY_TOP - naturalVY) / scale}px)`;
-          headingEl.style.opacity = "1";
-        } else {
-          // Track UXUI Design row — scrolls up with it (same as OurService behavior).
-          headingEl.style.transform = `translateY(${HEADING_STICK_END_Y - HEADING_CANVAS_Y}px)`;
-          headingEl.style.opacity = "1";
-        }
-      }
+      const { dynamicSectionEnd, stickyH } = layoutCache.current;
 
-      // ── Bottom desc + btn sticky (bottom: 200) ──
-      const bottomEl = bottomRef.current;
-      if (bottomEl) {
-        const bottomStickY = vh - STICKY_BOTTOM - BOTTOM_ELEMENT_H * scale;
-        const bStickStart  = BOTTOM_CANVAS_Y * scale - bottomStickY;
-        // Same as OurService — unglue once SECTION_END_Y - BOTTOM_ELEMENT_H reaches bottomStickY.
-        const bStickEnd    = (SECTION_END_Y - BOTTOM_ELEMENT_H) * scale - bottomStickY;
+      const headingY   = headingCanvasYRef.current;
+      const stickStart = headingY * scale - STICKY_TOP;
+      const stickEnd   = dynamicSectionEnd * scale - stickyH * scale - STICKY_TOP;
 
-        if (scrollY < bStickStart) {
-          bottomEl.style.transform = "";
-        } else if (scrollY <= bStickEnd) {
-          const naturalVY = BOTTOM_CANVAS_Y * scale - scrollY;
-          bottomEl.style.transform = `translateY(${(bottomStickY - naturalVY) / scale}px)`;
-        } else {
-          const frozenNatVY = BOTTOM_CANVAS_Y * scale - bStickEnd;
-          bottomEl.style.transform = `translateY(${(bottomStickY - frozenNatVY) / scale}px)`;
-        }
+      if (scrollY < stickStart) {
+        stickyEl.style.transform = "";
+      } else if (scrollY <= stickEnd) {
+        const naturalVY = headingY * scale - scrollY;
+        stickyEl.style.transform = `translateY(${(STICKY_TOP - naturalVY) / scale}px)`;
+      } else {
+        const ty = Math.max(0, dynamicSectionEnd - headingY - stickyH);
+        stickyEl.style.transform = `translateY(${ty}px)`;
       }
     };
 
-    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("virtual-scroll", update as EventListener);
     window.addEventListener("resize", update);
     update();
     return () => {
-      window.removeEventListener("scroll", update);
+      window.removeEventListener("virtual-scroll", update as EventListener);
       window.removeEventListener("resize", update);
+      window.removeEventListener("resize", computeStickyHeight);
+      window.removeEventListener("resize", measureSectionH);
+      window.removeEventListener("resize", measureLayout);
     };
   }, []);
 
   return (
-    <>
-      {/* Left — Pricing heading + intro (sticky wrapper) */}
+    /*
+     * ── Mobius-identical flex structure (mirrors OurService) ─────────────────
+     * div [Pricing]      display:flex flex-direction:row   ← wrapper
+     *   div [Left col]   flex-column  width:880
+     *     div [spacer]   height:200 (= HEADING gap)
+     *     div [Sticky]   height:stickyHeight  justify:space-between
+     *       div [heading + desc]   ← top
+     *       div [bottom text + btn] ← bottom
+     *   div [Right col]  flex-column  flex:1
+     *     div [spacer]   height:274 (= RIGHT_SPACER, so rows start at ROW_TOPS[0])
+     *     div [rows]     flex-column  gap:ROW_GAP  paddingBottom:40
+     *       PriceRow × 3 (flex children)
+     * ─────────────────────────────────────────────────────────────────────────
+     */
+    <div
+      className="absolute"
+      style={{
+        left: 0, top: pricingTop,
+        width: 1920, height: sectionH,
+        paddingTop: 200,
+        display: "flex", flexDirection: "row",
+      }}
+    >
+      {/* ── Left column ── flex-column, 880px */}
       <div
-        ref={stickyRef}
-        className="absolute"
-        style={{ left: 60, top: HEADING_CANVAS_Y }}
+        style={{
+          width: LEFT_COL_W, flexShrink: 0,
+          display: "flex", flexDirection: "column",
+        }}
       >
-        <div ref={headingRef}>
-          <SplitTextReveal
-            text="Pricing"
-            className="font-headline text-[40px] leading-[48px] font-bold tracking-[-0.03em] text-[#1D1D1F]"
-            style={{ whiteSpace: "nowrap" }}
-          />
-          <p
-            className="font-headline text-[16px] leading-[26px] font-normal tracking-[-0.005em] text-[#333336]"
-            style={{ marginTop: 24, width: 400 }}
+
+        {/*
+         * Sticky unit — mirrors Mobius div.framer-1rsau16 (Sticky Container):
+         *   height = viewport canvas px, justifyContent: space-between
+         *   ├── heading + desc   ← top
+         *   └── bottom text + btn ← bottom
+         */}
+        <div
+          ref={stickyRef}
+          style={{
+            paddingLeft: 60,
+            paddingRight: 60,
+            paddingBottom: 40,
+            flexShrink: 0,
+            height: stickyHeight,
+            display: "flex", flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
+          {/* Top — heading + desc */}
+          <div
+            ref={headingRef}
+            style={{ display: "flex", flexDirection: "column", gap: 16 }}
           >
-            {lang === "ko"
-              ? <>브랜드 구축부터 디지털 경험, 홍보물까지 프로젝트의 성격과<br />필요한 범위에 따라 대표 작업의 시작가를 안내드립니다.</>
-              : <>From brand identity to digital experiences and print,<br />here are starting prices based on project type and scope.</>
-            }
-          </p>
+            <SplitTextReveal
+              text="Pricing"
+              className="font-headline font-bold tracking-[-0.05em] text-[#000000]"
+              style={{ fontSize: 104, lineHeight: "100%", whiteSpace: "nowrap", fontWeight: 800, fontOpticalSizing: "none", fontVariationSettings: '"opsz" 144', paddingBottom: 20 }}
+            />
+            <p
+              className="font-headline text-[20px] leading-[32px] font-normal tracking-[-0.005em]"
+              style={{ width: 640, color: "#000000b3" }}
+            >
+              {lang === "ko"
+                ? <>브랜드 구축부터 디지털 경험, 홍보물까지<br />프로젝트의 성격과 필요한 범위에 따라 대표 작업의<br />시작가를 안내드립니다.</>
+                : <>From brand identity to digital experiences<br />and print, here are starting prices based on<br />project type and scope.</>
+              }
+            </p>
+          </div>
+
+          {/* Bottom — desc + Let's Talk (mirrors OurService desc + StartProjectBtn) */}
+          <div ref={bottomFadeRef} style={{ display: "flex", flexDirection: "column", gap: 64 }}>
+            <p
+              className="font-headline font-normal tracking-[-0.005em]"
+              style={{ fontSize: 18, lineHeight: "170%", width: 280, color: "#000000b3" }}
+            >
+              {lang === "ko"
+                ? <>실제 견적은 상담을 통해<br />함께 조율합니다.</>
+                : <>Actual pricing is determined<br />through consultation.</>
+              }
+            </p>
+            <StartProjectBtn label="Let's Talk" href="#contact" />
+          </div>
         </div>
       </div>
 
-      {/* Left — caption + Let's Talk (bottom sticky wrapper) */}
-      <div ref={bottomRef} className="absolute" style={{ left: 60, top: BOTTOM_CANVAS_Y }}>
-        <div ref={bottomFadeRef}>
-          <p
-            className="font-headline font-medium tracking-[-0.005em] text-[#6E6E73]"
-            style={{ fontSize: 14, lineHeight: "22px", marginBottom: 40, width: 280 }}
-          >
-            {lang === "ko"
-              ? <>실제 견적은 상담을 통해<br />함께 조율합니다.</>
-              : <>Final pricing is discussed<br />and adjusted through consultation.</>
-            }
-          </p>
-          <StartProjectBtn />
+      {/* ── Right column ── flex-column, flex:1 */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", paddingRight: 60 }}>
+
+        {/* Rows — gap:0, BorderContainer handles spacing between rows */}
+        <div
+          ref={rowsWrapperRef}
+          style={{ display: "flex", flexDirection: "column", gap: 0, paddingBottom: 40 }}
+        >
+          {PRICED.flatMap((s, i) => {
+            const row = (
+              <PriceRow
+                key={s.title}
+                title={s.title}
+                desc={s.desc[lang]}
+                chips={s.chips}
+                price={s.price}
+                lang={lang}
+                outerRef={(el) => { rowRefs.current[i] = el; }}
+              />
+            );
+            return i < PRICED.length - 1
+              ? [row, <BorderContainer key={`border-${i}`} />]
+              : [row];
+          })}
         </div>
       </div>
-
-      {/* Right — service + price rows with sticky stacking */}
-      {PRICED.map((s, i) => (
-        <PriceRow
-          key={s.title}
-          title={s.title}
-          desc={s.desc[lang]}
-          chips={s.chips}
-          price={s.price}
-          top={ROW_TOPS[i]}
-          zIndex={i + 1}
-          outerRef={(el) => { rowRefs.current[i] = el; }}
-          showDivider={i < PRICED.length - 1}
-        />
-      ))}
-    </>
+    </div>
   );
 }

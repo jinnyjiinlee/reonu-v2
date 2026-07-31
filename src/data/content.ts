@@ -1,11 +1,12 @@
 export const services = {
   bx: {
-    title: "Branding",
+    title: "Brand",
     desc: {
       ko: ["브랜드의 본질을 선명한 시각 시스템으로 정립하고", "모든 채널에서 일관된 브랜드 경험을 만듭니다."],
       en: ["We define the essence of a brand through a clear", "visual system that works consistently everywhere."],
     },
     chips: [
+      "Branding Design",
       "Visual Identity System",
       "Logo & Mark Development",
       "Typography & Color System",
@@ -14,12 +15,13 @@ export const services = {
     ],
   },
   uxui: {
-    title: "UXUI",
+    title: "Digital",
     desc: {
       ko: ["구조적인 설계와 반응형 시스템을 바탕으로", "직관적이고 완성도 있는 디지털 경험을 디자인합니다."],
-      en: ["Grounded in structural thinking and responsive systems,", "we design intuitive and polished digital experiences."],
+      en: ["Grounded in structural thinking and responsive", "systems, we design intuitive and polished digital experiences."],
     },
     chips: [
+      "UXUI Design",
       "Website & Platform Design",
       "App Design",
       "User Interface Design",
@@ -59,7 +61,7 @@ export const processSteps: ProcessStep[] = [
     title: "Discovery",
     image: "/images/process/process-01-discovery.jpg",
     desc: {
-      ko: ["프로젝트 목적과 필요한 작업 범위를 확인하고", "견적과 일정을 함께 조율합니다."],
+      ko: ["무엇을 만들어야 하는지, 왜 필요한지부터 함께 이야기합니다.", "올바른 방향을 잡는 것이 좋은 결과물의 첫 번째 조건입니다."],
       en: ["We clarify the project goals and scope,", "then align on budget and timeline together."],
     },
     tags: ["Consultation", "Scope Review"],
@@ -69,7 +71,7 @@ export const processSteps: ProcessStep[] = [
     title: "Define",
     image: "/images/process/process-02-define.jpg",
     desc: {
-      ko: ["작업에 필요한 자료와 리소스를 전달받고 프로젝트 방향을 구체화합니다.", "자료 준비가 어려운 경우 상담을 통해 도와드립니다."],
+      ko: ["방향이 정해지면 필요한 것들을 구체적으로 준비합니다.", "자료를 함께 정리하고 일정과 범위를 확정해나갑니다."],
       en: ["We gather the necessary materials and resources,", "then shape the direction of the project together."],
     },
     tags: ["Preparation", "Planning"],
@@ -79,7 +81,7 @@ export const processSteps: ProcessStep[] = [
     title: "Design",
     image: "/images/process/process-03-design.jpg",
     desc: {
-      ko: ["1차 시안을 전달드린 후 피드백을 반영하여 수정 작업을 진행합니다.", "프로젝트 범위에 맞춰 완성도를 높여갑니다."],
+      ko: ["아이디어가 처음으로 눈에 보이는 형태를 갖춥니다.", "시안을 함께 검토하고 피드백을 반영해 완성도를 높여갑니다."],
       en: ["We deliver an initial concept, then refine it", "based on your feedback to raise the quality."],
     },
     tags: ["Design", "Refinement"],
@@ -89,7 +91,7 @@ export const processSteps: ProcessStep[] = [
     title: "Deliver",
     image: "/images/process/process-04-deliver.jpg",
     desc: {
-      ko: ["최종 시안 확정 후 파일을 전달드립니다.", "작업 완료 이후에도 필요한 문의나 추가 지원이 있으면 이어서 도와드립니다."],
+      ko: ["최종 결과물을 확인하고 모든 파일을 전달드립니다.", "작업이 마무리된 이후에도 필요한 것이 있다면 언제든 함께합니다."],
       en: ["Final files are delivered after approval.", "We remain available for any follow-up questions or support."],
     },
     tags: ["Final Delivery", "Support"],

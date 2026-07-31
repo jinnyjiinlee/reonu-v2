@@ -2,12 +2,12 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
 import IntroAnimation from "@/components/IntroAnimation";
-import ScaleStage from "@/components/ScaleStage";
 import FooterReveal from "@/components/FooterReveal";
-import WorkDetailContent, { DETAIL_CANVAS_H } from "@/components/WorkDetailContent";
+import WorkDetailPageClient from "@/components/WorkDetailPageClient";
 import { WORKS_DATA } from "@/data/works";
+import MobileWorkDetail from "@/components/mobile/MobileWorkDetail";
 
-const FOOTER_CANVAS_H = 780;
+const FOOTER_CANVAS_H = 855;
 
 export function generateStaticParams() {
   return WORKS_DATA.map((item) => ({ id: item.id }));
@@ -23,18 +23,21 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <>
+      {/* Shared */}
+      <Header />
+
+      {/* Mobile layout */}
+      <MobileWorkDetail item={item} next={next} />
+
+      {/* Desktop layout */}
       <SmoothScroll />
       <IntroAnimation href="/" />
-      <Header />
-      <ScaleStage height={DETAIL_CANVAS_H}>
-        <main
-          className="relative bg-white overflow-hidden"
-          style={{ width: 1920, height: DETAIL_CANVAS_H }}
-        >
-          <WorkDetailContent item={item} next={next} />
-        </main>
-      </ScaleStage>
-      <FooterReveal height={FOOTER_CANVAS_H} />
+
+      {/* Fixed footer stage — outside scroll-wrapper so position:fixed stays viewport-anchored */}
+      <FooterReveal height={FOOTER_CANVAS_H} showSpacer={false} />
+
+      {/* Client component owns scroll-wrapper, real-px overlay, ScaleStage, and footer spacer */}
+      <WorkDetailPageClient item={item} next={next} />
     </>
   );
 }

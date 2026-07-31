@@ -1,78 +1,24 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useLayoutEffect, useState } from "react";
 import { processSteps } from "@/data/content";
 import { useLang } from "@/context/LanguageContext";
+import { StartProjectBtn } from "@/components/Pricing";
 
-const BTN_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
-const BTN_DUR  = "0.5s";
-const GAP      = 20;
-const ARR      = 36;
-const SLOT     = ARR + GAP;
+const DESIGN_W        = 1920;
+const N               = processSteps.length; // 4
+const SCROLL_PER_CARD = 600;
+const TAIL            = 600; // extra scroll so card 04 has full dwell time before release
+const IMAGE_H         = 507;
+const TEXT_LEFT       = 60;
+const TEXT_W          = 760;
+const IMG_LEFT        = 880;
+const IMG_W           = 980;  // 1920 - 880 - 60
 
-const ArrowSVG = () => (
-  <svg width="36" height="22" viewBox="0 0 36 22" fill="none" aria-hidden="true"
-       style={{ display: "block", flexShrink: 0 }}>
-    <line x1="8"  y1="11" x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
-    <line x1="19" y1="3"  x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
-    <line x1="19" y1="19" x2="28" y2="11" stroke="#1D1D1F" strokeWidth="2.4" strokeLinecap="round" />
-  </svg>
-);
-
-function LetsWorkTogetherBtn() {
-  const [hov, setHov] = useState(false);
-  const textRef = useRef<HTMLSpanElement>(null);
-  const [clipW, setClipW] = useState<number | null>(null);
-
-  useLayoutEffect(() => {
-    const measure = () => {
-      if (textRef.current)
-        setClipW(Math.ceil(textRef.current.getBoundingClientRect().width) + SLOT + 2);
-    };
-    measure();
-    document.fonts.ready.then(measure);
-  }, []);
-
-  return (
-    <div data-cursor="hidden" style={{ width: clipW ?? "max-content", overflow: "hidden" }}>
-      <a
-        href="#contact"
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        className="font-headline text-[28px] leading-[34px] font-medium tracking-[-0.01em] text-[#1D1D1F] no-underline"
-        style={{
-          display: "inline-flex", alignItems: "center", gap: GAP, paddingBottom: 12,
-          transform: hov ? "translateX(0)" : `translateX(-${SLOT}px)`,
-          transition: `transform ${BTN_DUR} ${BTN_EASE}`,
-        }}
-      >
-        <span style={{ display: "inline-flex", alignItems: "center", width: ARR }}><ArrowSVG /></span>
-        <span ref={textRef} style={{ whiteSpace: "nowrap" }}>Let&apos;s work together</span>
-        <span style={{ display: "inline-flex", alignItems: "center", width: ARR }}><ArrowSVG /></span>
-      </a>
-      <span style={{
-        display: "block", height: 1.5, background: "#1D1D1F", marginLeft: 4,
-        transform: hov ? "scaleX(1)" : "scaleX(0)",
-        transformOrigin: "left center",
-        transition: `transform ${BTN_DUR} ${BTN_EASE}`,
-      }} />
-    </div>
-  );
-}
-
-const DESIGN_W         = 1920;
-const N                = processSteps.length; // 4
-const SECTION_Y        = 4880; // canvas Y all cards are anchored to
-const SCROLL_PER_CARD  = 600;  // extra scroll after last card stacks
-const CARD_W           = 1800;
-const CARD_H           = 448;
-const CARD_GAP         = 20;   // gap between cards in natural spread
-
-const HEADING_CANVAS_Y = 4690; // canvas Y of "Our Process" heading
-const STICKY_TOP       = 166;  // viewport px where heading sticks
-
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+// Dynamic — set by ourservice-end event; fallback ≈ OurService SECTION_END_Y
+const OURPROCESS_INIT_TOP = 4164;
+const STICKY_TOP          = 166;
 
 /* ── Character-by-character slide-up reveal ── */
 function SplitTextReveal({ text, className, style }: {
@@ -117,169 +63,412 @@ function SplitTextReveal({ text, className, style }: {
 
 export default function OurProcess() {
   const { lang } = useLang();
-  const cardsRef   = useRef<(HTMLDivElement | null)[]>([]);
-  const headingRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic position — driven by ourservice-end event
+  const [wrapperTop, setWrapperTop] = useState(OURPROCESS_INIT_TOP);
+  // headingCanvasYRef = canvas Y of leftColRef/outerCardsRef (= wrapperTop + HEADING_ROW_H + 200)
+  // HEADING_ROW_H(464) = 264px text + 200px bottom padding; headingRef scrolls away before sticking
+  const headingCanvasYRef = useRef(OURPROCESS_INIT_TOP + 200);
 
   useEffect(() => {
-    const update = () => {
-      const scale  = Math.min(window.innerWidth / DESIGN_W, 1);
-      const scrollY = window.scrollY;
-      const vh     = window.innerHeight;
-
-      // Card sticks at this viewport Y (maintains natural gap from heading)
-      const cardTopY = STICKY_TOP + (SECTION_Y - HEADING_CANVAS_Y) * scale;
-
-      const stickStart       = HEADING_CANVAS_Y * scale - STICKY_TOP;
-      // Section ends after last card stacks + SCROLL_PER_CARD linger
-      const sectionScrollEnd = stickStart + (N - 1) * (CARD_H + CARD_GAP) * scale + SCROLL_PER_CARD * scale;
-
-      // ── Sticky heading ──
-      const headingEl = headingRef.current;
-      if (headingEl) {
-        if (scrollY < stickStart) {
-          headingEl.style.transform = "";
-        } else if (scrollY <= sectionScrollEnd) {
-          const naturalVY = HEADING_CANVAS_Y * scale - scrollY;
-          headingEl.style.transform = `translateY(${(STICKY_TOP - naturalVY) / scale}px)`;
-        } else {
-          const frozenNaturalVY = HEADING_CANVAS_Y * scale - sectionScrollEnd;
-          headingEl.style.transform = `translateY(${(STICKY_TOP - frozenNaturalVY) / scale}px)`;
-        }
-      }
-
-      // ── Stacking cards — spread list → each stacks on scroll ──
-      for (let i = 0; i < N; i++) {
-        const el = cardsRef.current[i];
-        if (!el) continue;
-
-        el.style.visibility = "visible";
-
-        // After section ends: all frozen at same cardTopY (last card on top)
-        if (scrollY >= sectionScrollEnd) {
-          const natVY = SECTION_Y * scale - sectionScrollEnd;
-          el.style.transform = `translateY(${(cardTopY - natVY) / scale}px)`;
-          continue;
-        }
-
-        // scrollY at which card i reaches cardTopY and sticks
-        const cardStickScroll = stickStart + i * (CARD_H + CARD_GAP) * scale;
-
-        if (scrollY < cardStickScroll) {
-          // Card i still scrolling naturally at its spread offset
-          el.style.transform = `translateY(${i * (CARD_H + CARD_GAP)}px)`;
-        } else {
-          // Card i has reached cardTopY — stick it there
-          const naturalVY = SECTION_Y * scale - scrollY;
-          el.style.transform = `translateY(${(cardTopY - naturalVY) / scale}px)`;
-        }
+    const handler = (e: Event) => {
+      const y = (e as CustomEvent<{ y: number }>).detail?.y;
+      if (y && y > 3000) {
+        const top = Math.round(y);
+        setWrapperTop(top);
+        headingCanvasYRef.current = top + 200; // headingRef canvas Y
+        // Broadcast where OurProcess ends so Partners can follow
+        const processEnd = top + 608 + N * SCROLL_PER_CARD + TAIL;
+        window.dispatchEvent(new CustomEvent("ourprocess-end", { detail: { y: processEnd } }));
       }
     };
+    window.addEventListener("ourservice-end", handler);
+    return () => window.removeEventListener("ourservice-end", handler);
+  }, []);
 
-    window.addEventListener("scroll", update, { passive: true });
+  // Left column
+  const leftColRef    = useRef<HTMLDivElement>(null);
+  const headingRef    = useRef<HTMLDivElement>(null);
+  const textCardsRef  = useRef<(HTMLDivElement | null)[]>([]);
+  const [ourWorkHov, setOurWorkHov] = useState(false);
+
+  // Right column (images)
+  const outerCardsRef      = useRef<HTMLDivElement>(null);
+  const cardsRef           = useRef<(HTMLDivElement | null)[]>([]);
+  const btnAreaRef         = useRef<HTMLDivElement>(null);
+  const imageContainerRef  = useRef<HTMLDivElement>(null);
+
+  // Pricing-style sticky height: viewport height in canvas px
+  const [stickyHeight, setStickyHeight] = useState(1000);
+  // outerCardsRef starts at canvas top+608 (= headingRef bottom).
+  // During sticky: viewportY = STICKY_TOP + 408*scale ≈ 487px
+  // To reach viewport bottom: height = (window.innerHeight - 487) / scale = stickyHeight - 408
+  const imageHeight = Math.max(400, stickyHeight - 408);
+
+  useLayoutEffect(() => {
+    const compute = () => {
+      const scale = Math.min(window.innerWidth / DESIGN_W, 1);
+      const sh = Math.round((window.innerHeight - STICKY_TOP) / scale);
+      setStickyHeight(sh);
+    };
+    compute();
+    requestAnimationFrame(compute);
+    document.fonts.ready.then(compute);
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
+
+
+  useEffect(() => {
+    const mainEl = document.querySelector("main") as HTMLElement | null;
+    document.body.style.transition = "background-color 0.6s ease";
+    if (mainEl) mainEl.style.transition = "background-color 0.6s ease";
+
+    // Color transitions on heading elements
+    const headingEl = headingRef.current;
+    if (headingEl) {
+      const h2 = headingEl.querySelector("h2") as HTMLElement | null;
+      const p  = headingEl.querySelector("p")  as HTMLElement | null;
+      if (h2) h2.style.transition = "color 0.6s ease";
+      if (p)  p.style.transition  = "color 0.6s ease";
+    }
+
+    const update = () => {
+      const scale   = Math.min(window.innerWidth / DESIGN_W, 1);
+      const scrollY = (window as any).__virtualY ?? 0;
+
+      document.documentElement.classList.remove("dark-process");
+
+      // ── OurService-identical sticky pattern ──
+      const stickyH         = Math.round((window.innerHeight - STICKY_TOP) / scale);
+      const headingCanvasY  = headingCanvasYRef.current;
+      const sectionEndCanvas = headingCanvasY + N * SCROLL_PER_CARD + TAIL;
+
+      const stickStart = headingCanvasY * scale - STICKY_TOP;
+      const stickEnd   = sectionEndCanvas * scale - stickyH * scale - STICKY_TOP;
+
+      const applyCol = (el: HTMLDivElement | null) => {
+        if (!el) return;
+        if (scrollY < stickStart) {
+          el.style.transform = "";
+        } else if (scrollY <= stickEnd) {
+          const naturalVY = headingCanvasY * scale - scrollY;
+          el.style.transform = `translateY(${(STICKY_TOP - naturalVY) / scale}px)`;
+        } else {
+          // Release: fixed offset so element scrolls away with the page
+          const ty = Math.max(0, N * SCROLL_PER_CARD + TAIL - stickyH);
+          el.style.transform = `translateY(${ty}px)`;
+        }
+      };
+
+      // Right column: uses its OWN stickStart — when outerCardsRef naturally scrolls
+      // to STICKY_TOP. Eliminates the jump discontinuity at headingRef's stickStart.
+      // Continuity proof: at rightStickStart ty=0 both before and after ✓
+      //                   at stickEnd ty = 1992-stickyH both sticky and release ✓
+      const applyRightCol = (el: HTMLDivElement | null) => {
+        if (!el) return;
+        const outerCanvasY  = headingCanvasY + 408; // wrapperTop + 608
+        const rightStickStart = outerCanvasY * scale - STICKY_TOP;
+
+        if (scrollY < rightStickStart) {
+          el.style.transform = "";
+        } else if (scrollY <= stickEnd) {
+          const naturalVY = outerCanvasY * scale - scrollY;
+          const ty = (STICKY_TOP - naturalVY) / scale;
+          el.style.transform = `translateY(${ty}px)`;
+        } else {
+          // ty = 1992 - stickyH = 2400 - 408 - stickyH (continuous with stickEnd)
+          const ty = N * SCROLL_PER_CARD + TAIL - 408 - stickyH;
+          el.style.transform = `translateY(${ty}px)`;
+        }
+      };
+
+      applyCol(headingRef.current);
+      applyCol(leftColRef.current);
+      applyRightCol(outerCardsRef.current);
+
+      // ── Card progress ──
+      const sectionScrollEnd = stickStart + (N * SCROLL_PER_CARD + TAIL) * scale;
+      const cardProgress = scrollY < stickStart ? 0
+        : scrollY >= sectionScrollEnd ? N - 1
+        : (scrollY - stickStart) / (SCROLL_PER_CARD * scale);
+
+      const FADE   = 0.25;
+      const TRAVEL = 50;
+
+      const applyFade = (el: HTMLDivElement | null, i: number) => {
+        if (!el) return;
+        const d = cardProgress - i;
+        let opacity: number, ty: number;
+
+        if (d < -FADE)                    { opacity = 0;           ty = TRAVEL; }
+        else if (d < 0)                   { const t = (d + FADE) / FADE; opacity = t; ty = (1 - t) * TRAVEL; }
+        else if (i === N - 1 || d < 1 - FADE) { opacity = 1;      ty = 0; }
+        else if (d < 1)                   { const t = (d - (1 - FADE)) / FADE; opacity = 1 - t; ty = -t * TRAVEL; }
+        else                              { opacity = 0;           ty = -TRAVEL; }
+
+        const clampedOpacity = Math.max(0, Math.min(1, opacity));
+        el.style.opacity    = String(clampedOpacity);
+        el.style.transform  = `translate3d(0,${ty}px,0)`;
+        el.style.visibility = clampedOpacity > 0 ? "visible" : "hidden";
+      };
+
+      // Apply fade to text cards, number cards (left) and image cards (right)
+      textCardsRef.current.forEach((el, i) => applyFade(el, i));
+      cardsRef.current.forEach((el, i) => applyFade(el, i));
+    };
+
+    window.addEventListener("virtual-scroll", update as EventListener);
     window.addEventListener("resize", update);
     update();
     return () => {
-      window.removeEventListener("scroll", update);
+      document.documentElement.classList.remove("dark-process");
+      window.removeEventListener("virtual-scroll", update as EventListener);
       window.removeEventListener("resize", update);
     };
   }, []);
 
   return (
-    <>
-      {/* Section heading + desc — sticky wrapper */}
+    <div
+      className="absolute"
+      style={{ left: 0, top: wrapperTop, width: 1920, paddingTop: 200, zIndex: 1 }}
+    >
+      {/*
+       * ── HEADING ROW ────────────────────────────────────────────────────────────
+       * Full 1920px canvas = 1512px viewport → matches Möbius div.framer-1l493v4
+       * (1512 × 208 viewport). One block containing:
+       *   LEFT  (left: 60)  — "Our Process" heading text
+       *   RIGHT (left: 880) — description + CTA button
+       * ─────────────────────────────────────────────────────────────────────────
+       */}
       <div
         ref={headingRef}
-        className="absolute"
-        style={{ left: 60, top: HEADING_CANVAS_Y, zIndex: 10, width: 460, height: 124 }}
+        style={{
+          position:   "absolute",
+          left:       0,
+          top:        200,
+          width:      1920,
+          height:     408, // 208px text (104×2) + 200px bottom padding
+          zIndex:     10,
+          willChange: "transform",
+        }}
       >
-        <SplitTextReveal
-          text="Our Process"
-          className="absolute m-0 font-headline text-[28px] leading-[34px] font-bold tracking-[-0.03em] text-[#1d1d1f]"
-          style={{ top: 0, left: 0 }}
-        />
-        <p
-          className="absolute font-headline text-[16px] leading-[26px] font-normal tracking-[-0.005em] text-[#333336]"
-          style={{ top: 58, left: 0, width: 460 }}
-        >
-          {lang === "ko"
-            ? <>상담부터 최종 전달까지 명확한 단계에 따라 진행됩니다.<br />자료가 아직 정리되지 않았더라도 상담을 통해 방향을 정리할 수 있습니다.</>
-            : <>Every project follows clear steps from brief to final delivery.<br />Even if your materials aren't ready yet, a consultation can help set the direction.</>
-          }
-        </p>
-      </div>
-
-      {/* Stacking cards */}
-      {processSteps.map((step, i) => (
+        {/* LEFT — heading text */}
         <div
-          key={step.num}
-          ref={el => { cardsRef.current[i] = el; }}
-          className="absolute"
           style={{
-            left:         60,
-            top:          SECTION_Y,
-            width:        CARD_W,
-            height:       CARD_H,
-            borderRadius: 0,
-            overflow:     "hidden",
-            zIndex:       i + 1,
-            visibility:   "visible",
-            background:   "#ffffff",
+            position:      "absolute",
+            left:          TEXT_LEFT,
+            top:           0,
+            display:       "flex",
+            flexDirection: "column",
+            gap:           0,
           }}
         >
-          {/* Photo */}
-          <div
-            className="absolute overflow-hidden"
-            style={{ left: 14, top: 9, width: 605, height: 430, borderRadius: 12 }}
-          >
-            <Image
-              src={step.image}
-              alt={step.title}
-              width={605}
-              height={430}
-              className="object-cover w-full h-full"
-              style={{ borderRadius: 6 }}
-            />
-          </div>
+          <SplitTextReveal
+            text="Our"
+            className="m-0 font-headline font-bold tracking-[-0.05em] text-[#000000]"
+            style={{ fontSize: 104, lineHeight: "100%", whiteSpace: "nowrap", fontWeight: 800, fontOpticalSizing: "none", fontVariationSettings: '"opsz" 144' }}
+          />
+          <SplitTextReveal
+            text="Process"
+            className="m-0 font-headline font-bold tracking-[-0.05em] text-[#000000]"
+            style={{ fontSize: 104, lineHeight: "100%", whiteSpace: "nowrap", fontWeight: 800, fontOpticalSizing: "none", fontVariationSettings: '"opsz" 144' }}
+          />
+        </div>
 
-          {/* Step number */}
-          <div
-            className="absolute text-[#6E6E73] font-headline text-[14px] leading-[17px] font-medium tracking-[0.08em]"
-            style={{ left: 820, top: 104 }}
-          >
-            {step.num}
-          </div>
-
-          {/* Title */}
-          <h3
-            className="absolute font-headline text-[36px] leading-[44px] font-bold tracking-[-0.03em] text-[#1d1d1f]"
-            style={{ left: 820, top: 133 }}
-          >
-            {step.title}
-          </h3>
-
-          {/* Description */}
-          <p
-            className="absolute font-headline text-[16px] leading-[26px] font-normal tracking-[-0.005em] text-[#333336]"
-            style={{ left: 820, top: 193, width: 680 }}
-          >
-            {step.desc[lang][0]}
-            <br />
-            {step.desc[lang][1]}
-          </p>
-
-          {/* Tags */}
-          <div className="absolute flex gap-[8px]" style={{ left: 820, top: 309 }}>
-            {step.tags.map(tag => (
-              <span
-                key={tag}
-                className="inline-flex items-center h-[40px] px-[20px] rounded-full border border-[#6E6E73] bg-transparent font-headline text-[16px] leading-[20px] font-medium tracking-[-0.005em] text-[#1D1D1F]"
-              >
-                {tag}
-              </span>
-            ))}
+        {/* RIGHT — description + CTA, vertically bottom-aligned within heading row */}
+        <div
+          ref={btnAreaRef}
+          style={{
+            position:       "absolute",
+            left:           IMG_LEFT,
+            top:            8,
+            width:          IMG_W,
+            height:         208,
+            display:        "flex",
+            flexDirection:  "column",
+            justifyContent: "flex-start",
+            alignItems:     "flex-end",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 32, alignItems: "flex-start" }}>
+            <p
+              className="font-headline font-normal tracking-[-0.005em]"
+              style={{ fontSize: 18, lineHeight: "170%", maxWidth: 780, color: "#000000e6" }}
+            >
+              {lang === "ko"
+                ? <>상담부터 최종 전달까지 명확한 단계에 따라 진행됩니다.<br />자료가 아직 정리되지 않았더라도 상담을 통해 방향을 정리할 수 있습니다.</>
+                : <>Every project follows clear steps from brief to final delivery.<br />Even if your materials aren&apos;t ready yet, a consultation can help set the direction.</>
+              }
+            </p>
+            <StartProjectBtn label="Let's work together" href="#contact" />
           </div>
         </div>
-      ))}
-    </>
+      </div>
+
+      {/*
+       * ── LEFT column: step cards + step numbers ─────────────────────────────
+       * top:664 = headingRef scrolls away (top:200 + height:464) before sticking begins.
+       * Step cards at top:0 — appear at STICKY_TOP immediately when stuck.
+       * ─────────────────────────────────────────────────────────────────────────
+       */}
+      <div
+        ref={leftColRef}
+        style={{
+          position:   "absolute",
+          left:       TEXT_LEFT,
+          top:        608,
+          width:      TEXT_W,
+          height:     imageHeight,
+          zIndex:     10,
+          willChange: "transform",
+        }}
+      >
+        {processSteps.map((step, i) => (
+          <div
+            key={step.num}
+            ref={el => { textCardsRef.current[i] = el; }}
+            style={{
+              position:       "absolute",
+              top:            0,
+              left:           0,
+              width:          TEXT_W,
+              height:         imageHeight,   // fill column → enables justifyContent:center
+              opacity:        i === 0 ? 1 : 0,
+              visibility:     i === 0 ? "visible" : "hidden",
+              willChange:     "transform, opacity",
+              display:        "flex",
+              flexDirection:  "column",
+              alignItems:     "flex-start",
+              justifyContent: "flex-start",
+              gap:            16,
+            }}
+          >
+            {/* ── Möbius div.framer-1y6pksy: title + desc + tags all gap:16 ── */}
+            <h3
+              className="m-0 font-headline text-[71px] leading-[120%] font-bold tracking-[-0.03em]"
+              style={{ color: "#000000e6" }}
+            >
+              {step.title}
+            </h3>
+            <p className="m-0 font-headline text-[20px] leading-[32px] font-normal tracking-[-0.005em]" style={{ color: "#000000b3" }}>
+              {step.desc[lang][0]}<br />{step.desc[lang][1]}
+            </p>
+            <p
+              className="m-0 font-headline text-[18px]"
+              style={{ fontWeight: 500, color: "#b8b8b8", letterSpacing: "0.02em", lineHeight: "160%", marginTop: 40 }}
+            >
+              {step.tags.join(", ")}
+            </p>
+            {/* ── Our Work CTA — gap:16(flex)+marginTop:56 below tags ── */}
+            <Link
+              href="/works"
+              data-cursor="hidden"
+              onMouseEnter={() => setOurWorkHov(true)}
+              onMouseLeave={() => setOurWorkHov(false)}
+              style={{
+                marginTop:     56,
+                display:       "inline-flex",
+                alignItems:    "center",
+                gap:           20,
+                height:        61,
+                paddingLeft:   23,
+                paddingRight:  20,
+                overflow:      "hidden",
+                position:      "relative",
+                textDecoration:"none",
+              }}
+            >
+              <span style={{
+                position:   "absolute",
+                top:        ourWorkHov ? 8 : 0,
+                right:      ourWorkHov ? 10 : 0,
+                height:     ourWorkHov ? 46 : 61,
+                width:      ourWorkHov ? 46 : "100%",
+                borderRadius: 999,
+                background: "#1D1D1F",
+                transition: "width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1), right 0.5s cubic-bezier(0.4,0,0.2,1)",
+                zIndex:     0,
+              }} />
+              <span
+                className="font-headline text-[25px] leading-[32px] font-medium tracking-normal"
+                style={{ whiteSpace: "nowrap", position: "relative", zIndex: 2, color: ourWorkHov ? "#000000e6" : "#ffffff", transition: "color 0.5s cubic-bezier(0.4,0,0.2,1)" }}
+              >
+                Our Work
+              </span>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 2, flexShrink: 0 }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width={ourWorkHov ? 26 : 20} height={ourWorkHov ? 26 : 20} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ display: "block", flexShrink: 0, transition: "width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1)" }}>
+                  <path d="M5 12h14M12 5l7 7-7 7" stroke="#ffffff" strokeWidth="2.34" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </Link>
+          </div>
+        ))}
+      </div>
+
+      {/*
+       * ── RIGHT column: image (top:608, no spacer) ──────────────────────────
+       * top:608 aligns with leftColRef. Image fills full sticky height (Möbius: 699px vp).
+       * ─────────────────────────────────────────────────────────────────────────
+       */}
+      <div
+        ref={outerCardsRef}
+        style={{
+          position:   "absolute",
+          left:       IMG_LEFT,
+          top:        608,
+          width:      IMG_W,
+          height:     stickyHeight,
+          willChange: "transform",
+        }}
+      >
+        <div ref={imageContainerRef} style={{ position: "relative", width: IMG_W, height: stickyHeight }}>
+          {processSteps.map((step, i) => (
+            <div
+              key={step.num}
+              ref={el => { cardsRef.current[i] = el; }}
+              style={{
+                position:   "absolute",
+                top:        0,
+                left:       0,
+                width:      IMG_W,
+                height:     stickyHeight,
+                opacity:    i === 0 ? 1 : 0,
+                visibility: "visible",
+                willChange: "transform, opacity",
+                display:    "flex",
+                alignItems: "flex-end",   // bottom-align: number bottom = viewport bottom
+                justifyContent: "flex-end",
+              }}
+            >
+              {/* Number clipping effect: image visible only through number shapes */}
+              <span
+                className="font-headline"
+                style={{
+                  fontSize:              760,
+                  lineHeight:            1,
+                  letterSpacing:         "-0.05em",
+                  fontWeight:            900,
+                  color:                 "transparent",
+                  backgroundImage:       `url(${step.image})`,
+                  backgroundSize:        "cover",
+                  backgroundPosition:    "center",
+                  WebkitBackgroundClip:  "text",
+                  backgroundClip:        "text",
+                  display:               "block",
+                  textAlign:             "right",
+                  paddingRight:          20,  // extend bg past ink overflow on right curves
+                  userSelect:            "none",
+                  fontOpticalSizing:     "none",
+                  fontVariationSettings: '"opsz" 144',
+                } as React.CSSProperties}
+              >
+                {step.num}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }

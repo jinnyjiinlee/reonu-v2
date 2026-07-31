@@ -1,13 +1,16 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-const EASE_DOT = 0.85;
-const DOT_R    = 5;
+const EASE_DOT = 0.04;
+const DOT_R    = 10;
 
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Touch/mobile devices: skip custom cursor entirely.
+    if ("ontouchstart" in window || navigator.maxTouchPoints > 0) return;
+
     const dot = dotRef.current;
     if (!dot) return;
 
@@ -16,13 +19,25 @@ export default function CustomCursor() {
     let dx = -500, dy = -500;
     let isHidden = false;
 
+    // Self-terminating RAF — stops when settled, restarts on mousemove.
+    // Avoids burning a full 60fps slot when cursor hasn't moved.
     const tick = () => {
-      dx += (mx - dx) * EASE_DOT;
-      dy += (my - dy) * EASE_DOT;
+      const ddx = mx - dx;
+      const ddy = my - dy;
+      if (Math.abs(ddx) < 0.3 && Math.abs(ddy) < 0.3) {
+        // Settled — snap and stop
+        dx = mx; dy = my;
+        dot.style.transform = `translate3d(${dx}px,${dy}px,0) translate(-50%,-50%)`;
+        raf = 0;
+        return;
+      }
+      dx += ddx * EASE_DOT;
+      dy += ddy * EASE_DOT;
       dot.style.transform = `translate3d(${dx}px,${dy}px,0) translate(-50%,-50%)`;
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+    // Don't start RAF immediately — cursor starts off-screen and will be
+    // triggered by the first mousemove event.
 
     const onMove = (e: MouseEvent) => {
       mx = e.clientX; my = e.clientY;
@@ -32,6 +47,8 @@ export default function CustomCursor() {
         isHidden = hidden;
         dot.style.opacity = hidden ? "0" : "1";
       }
+      // Restart RAF only if not already running
+      if (!raf) raf = requestAnimationFrame(tick);
     };
 
     const onLeave = () => { dot.style.opacity = "0"; };

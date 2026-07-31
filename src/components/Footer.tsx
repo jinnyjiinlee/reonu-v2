@@ -1,24 +1,76 @@
 "use client";
 
-import type { CSSProperties, MouseEventHandler } from "react";
+import { useState, useEffect, useRef, type CSSProperties, type MouseEventHandler } from "react";
+import LocalTime from "@/components/LocalTime";
 
-// Footer nav link — same letter-flip hover effect as the header nav
+const BTN_EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+function EmailLink({ email, fontSize }: { email: string; fontSize: number }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      data-cursor="hidden"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ display: "inline-block", position: "relative" }}
+    >
+      <a
+        href={`mailto:${email}`}
+        className="font-headline font-bold tracking-[-0.03em] text-[#000000]"
+        style={{ fontSize, lineHeight: `${fontSize * (58 / 48)}px`, display: "block", textDecoration: "none" }}
+      >
+        {email}
+      </a>
+      {/* Underline — slides in from left on hover, 2.54px to match StartProjectBtn */}
+      <span style={{
+        position: "absolute", bottom: -6, left: 0, right: 0,
+        height: 2.54, background: "#000000",
+        transform: hov ? "scaleX(1)" : "scaleX(0)",
+        transformOrigin: "0% 50%",
+        transition: `transform 0.42s ${BTN_EASE}`,
+      }} />
+    </div>
+  );
+}
+
+// LocalTime is now a shared component — imported from LocalTime.tsx
+
+// Footer nav link
+// hoverEffect: "flip" = letter-by-letter slide-up (default), "opacity" = simple opacity fade
 // underline: "none" = no underline ever, "always" = static underline (no hover needed)
 function FooterNavLink({
   href,
   label,
   className,
+  style,
   underline = "none",
+  hoverEffect = "flip",
   icon = false,
   onClick,
 }: {
   href: string;
   label: string;
   className: string;
+  style?: CSSProperties;
   underline?: "none" | "always";
+  hoverEffect?: "flip" | "opacity";
   icon?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
 }) {
+  if (hoverEffect === "opacity") {
+    return (
+      <a
+        href={href}
+        data-cursor="hidden"
+        className={`inline-flex items-center hover:opacity-60 transition-opacity duration-300 ${className}`}
+        style={style}
+        onClick={onClick}
+      >
+        {label}
+      </a>
+    );
+  }
+
   const underlineClass =
     underline === "always" ? "footer-nav-underline-always" : "footer-nav-no-underline";
   return (
@@ -26,6 +78,7 @@ function FooterNavLink({
       href={href}
       data-cursor="hidden"
       className={`nav-item ${underlineClass} ${className}`}
+      style={style}
       onClick={onClick}
     >
       {label.split("").map((char, i) => {
@@ -62,7 +115,75 @@ function FooterNavLink({
   );
 }
 
-export default function Footer() {
+export default function Footer({ navFontSize = 14 }: { navFontSize?: number }) {
+  const bottomFontSize = navFontSize * (16 / 14);
+  const copyrightFontSize = navFontSize * (12 / 14);
+
+  const taglineRef = useRef<HTMLDivElement>(null);
+  const emailRef   = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const STRIPE_H = 32;
+    const DURATION = 1100;
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    const applyMask = (el: HTMLElement, visiblePx: number) => {
+      const m = `repeating-linear-gradient(to bottom,#000 0px,#000 ${visiblePx}px,transparent ${visiblePx}px,transparent ${STRIPE_H}px)`;
+      el.style.webkitMaskImage = m;
+      (el.style as any).maskImage = m;
+    };
+    const clearMask = (el: HTMLElement) => {
+      el.style.webkitMaskImage = "none";
+      (el.style as any).maskImage = "none";
+    };
+
+    const rafs: Record<string, number> = {};
+    const runAnim = (key: string, el: HTMLElement, delay = 0) => {
+      if (rafs[key]) cancelAnimationFrame(rafs[key]);
+      let start: number | null = null;
+      const tick = (now: number) => {
+        if (start === null) start = now;
+        const elapsed = now - start - delay;
+        if (elapsed < 0) { rafs[key] = requestAnimationFrame(tick); return; }
+        const p = ease(Math.min(elapsed / DURATION, 1));
+        applyMask(el, p * STRIPE_H);
+        if (p < 1) rafs[key] = requestAnimationFrame(tick);
+        else clearMask(el);
+      };
+      rafs[key] = requestAnimationFrame(tick);
+    };
+
+    [taglineRef.current, emailRef.current].forEach(el => { if (el) applyMask(el, 0); });
+
+    let footerInView = false;
+
+    function check() {
+      const wrapper = document.getElementById("scroll-wrapper");
+      if (!wrapper) return;
+      const maxScroll = Math.max(0, wrapper.scrollHeight - window.innerHeight);
+      const vy    = (window as any).__virtualY ?? 0;
+      const scale = Math.min(window.innerWidth / 1920, 1);
+      const inView = maxScroll <= 0 || maxScroll - vy <= 855 * scale;
+
+      if (inView && !footerInView) {
+        footerInView = true;
+        if (taglineRef.current) runAnim("tagline", taglineRef.current, 0);
+        if (emailRef.current)   runAnim("email",   emailRef.current, 160);
+      } else if (!inView && footerInView) {
+        footerInView = false;
+        Object.values(rafs).forEach(id => cancelAnimationFrame(id));
+        [taglineRef.current, emailRef.current].forEach(el => { if (el) applyMask(el, 0); });
+      }
+    }
+
+    window.addEventListener("virtual-scroll", check as EventListener);
+    check();
+    return () => {
+      window.removeEventListener("virtual-scroll", check as EventListener);
+      Object.values(rafs).forEach(id => cancelAnimationFrame(id));
+    };
+  }, []);
+
   return (
     <>
       {/* Divider line */}
@@ -75,71 +196,77 @@ export default function Footer() {
       <div
         data-name="Container"
         className="absolute flex flex-col"
-        style={{ left: 60, top: 121, width: 1800 }}
+        style={{ left: 60, top: 200, width: 1800, gap: 120 }}
       >
         {/* Row 1 — tagline + email, flex space-between (matches reference text_wrapper) */}
         <div data-name="text_wrapper" className="flex items-start justify-between">
-          {/* Tagline (left) — Inter Bold 48px #1D1D1F */}
-          <div className="font-headline font-bold text-[48px] leading-[58px] tracking-[-0.03em] text-[#1D1D1F]">
+          {/* Tagline (left) — venetian-blind mask reveal */}
+          <div
+            ref={taglineRef}
+            className="font-headline font-bold text-[48px] leading-[58px] tracking-[-0.03em] text-[#000000]"
+          >
             Turns On The Value Within
             <br />
             Your Brand.
           </div>
 
-          {/* Email (right) — Bold 48px */}
-          <a
-            href="mailto:reonustudio@gmail.com"
-            className="font-headline font-bold text-[48px] leading-[58px] tracking-[-0.03em] text-[#1D1D1F] hover:opacity-60"
-          >
-            reonustudio@gmail.com
-          </a>
+          {/* Email (right) — venetian-blind mask reveal, 150ms stagger */}
+          <div ref={emailRef}>
+            <EmailLink email="reonustudio@gmail.com" fontSize={48} />
+          </div>
         </div>
 
-        {/* Row 2 — REONU / SOCIAL MEDIA columns (matches reference Pages/Social Media wrapper) */}
+        {/* Local time — left side, aligned with nav links row top (canvas y=436) */}
+      <div className="absolute" style={{ left: 0, top: 236 }}>
+        <LocalTime fontSize={navFontSize} />
+      </div>
+
+      {/* Row 2 — REONU / SOCIAL MEDIA columns (matches reference Pages/Social Media wrapper) */}
         {/* marginLeft:1233 (=1293-60) aligns REONU with the email's left edge above */}
-        <div data-name="pages_wrapper" className="grid grid-cols-3" style={{ marginTop: 80, marginLeft: 1233, width: 1800 - 1233 }}>
+        <div data-name="pages_wrapper" className="grid grid-cols-3" style={{ marginLeft: 1233, width: 1800 - 1233 }}>
           {/* REONU column — 1st of 3 equal columns */}
-          <div data-name="Pages" className="flex flex-col gap-[24px]">
-            <div className="font-headline text-[14px] leading-[20px] font-medium tracking-[-0.01em] text-[#86868B] mb-[9px]">
-              REONU
-            </div>
+          <div data-name="Pages" className="flex flex-col gap-[40px]">
             <FooterNavLink
               href="#works"
               label="WORKS"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+
+              className="font-display-headline font-bold" style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
             />
             <FooterNavLink
               href="#studio"
               label="STUDIO"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+
+              className="font-display-headline font-bold" style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
             />
             <FooterNavLink
               href="#contact"
               label="CONTACT"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F] pb-[4px] self-start"
-              underline="always"
+
+              className="font-display-headline font-bold pb-[4px] self-start"
+              style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
+              underline="none"
             />
           </div>
 
           {/* SOCIAL MEDIA column — content starts right at the column-2 line, no visible border */}
-          <div data-name="Social Media" className="flex flex-col gap-[24px]">
-            <div className="font-headline text-[14px] leading-[20px] font-medium tracking-[-0.01em] text-[#86868B] mb-[9px]">
-              SOCIAL MEDIA
-            </div>
+          <div data-name="Social Media" className="flex flex-col gap-[40px]">
             <FooterNavLink
               href="#"
               label="INSTAGRAM"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+
+              className="font-display-headline font-bold" style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
             />
             <FooterNavLink
               href="#"
               label="LINKEDIN"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+
+              className="font-display-headline font-bold" style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
             />
             <FooterNavLink
               href="#"
               label="BEHANCE"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+
+              className="font-display-headline font-bold" style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
             />
           </div>
 
@@ -148,24 +275,34 @@ export default function Footer() {
         </div>
 
         {/* Row 3 — giant REONU wordmark + copyright (matches reference "logo + terms" wrapper) */}
-        <div data-name="logo + terms" className="relative" style={{ marginTop: 87 }}>
+        <div data-name="logo + terms" className="relative">
           {/* Giant REONU wordmark — Bold 248px. Inter's empty descender space (~0.2em) below the
               cap-height glyphs is pushed down via translateY so the letters sit flush with the
               bottom of the page. */}
           <div
             data-name="Logo Reonu"
-            className="font-headline font-bold text-[#1D1D1F] select-none -translate-x-[16px] translate-y-[30px]"
-            style={{ fontSize: 248, lineHeight: 1, letterSpacing: "-0.04em" }}
+            className="font-headline select-none -translate-x-[16px]"
+            style={{
+              fontSize: 248,
+              fontWeight: 800,
+              lineHeight: 1,
+              letterSpacing: "-0.05em",
+              color: "#000000",
+              fontOpticalSizing: "none",
+              fontVariationSettings: '"opsz" 144',
+              marginTop: -30,
+            }}
           >
             REONU
           </div>
 
           {/* Back to top — same style as SOCIAL MEDIA links, left edge aligns with REONU/email column above (left:1233) */}
-          <div className="absolute" style={{ left: 1233, top: 30 }}>
+          <div className="absolute" style={{ left: 1233, top: 0 }}>
             <FooterNavLink
               href="#top"
               label="BACK TO TOP"
-              className="font-headline text-[16px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#1D1D1F]"
+              className="font-display-headline font-bold"
+              style={{ color: "#000000e6", letterSpacing: "0.02em", fontSize: navFontSize, lineHeight: `${navFontSize}px` }}
               onClick={(e) => {
                 e.preventDefault();
                 window.dispatchEvent(
@@ -175,38 +312,42 @@ export default function Footer() {
             />
           </div>
 
-          {/* Copyright — left edge aligns with REONU/email column above (left:1233) */}
-          <div className="absolute pb-[40px]" style={{ left: 1233, bottom: 0 }}>
-            <div
-              data-name="copyright"
-              className="font-headline text-[14px] leading-[1.4em] font-semibold tracking-[-0.01em] text-[#86868B]"
-            >
-              © 2026 <span className="font-semibold">REONU</span>. ALL RIGHTS RESERVED.
-            </div>
-          </div>
-
-          {/* Privacy Policy / Terms of Service — same line as copyright, right edge aligns with the
-              container's right edge (right:0) */}
-          <div
-            className="absolute flex items-center whitespace-nowrap pb-[40px]"
-            style={{ right: 0, bottom: 0, gap: 40 }}
-          >
-            <a
-              href="#"
-              className="font-headline text-[13px] leading-[20px] font-semibold tracking-[-0.01em] text-[#86868B] opacity-70 hover:opacity-60"
-            >
-              PRIVACY POLICY
-            </a>
-            <a
-              href="#"
-              className="font-headline text-[13px] leading-[20px] font-semibold tracking-[-0.01em] text-[#86868B] opacity-70 hover:opacity-60"
-            >
-              TERMS OF SERVICE
-            </a>
-          </div>
         </div>
       </div>
 
+      {/* Copyright bar — flex-col at left:1293, bottom:32 (32px padding below © text)
+          Links row uses relative container (width=567, same as pages_wrapper) so
+          TERMS OF SERVICE aligns with INSTAGRAM column left (col 2 start = left:189). */}
+      <div
+        className="absolute flex flex-row items-center justify-between"
+        style={{ left: 1293, right: 60, bottom: 32 }}
+      >
+        <p
+          className="font-display-headline whitespace-nowrap"
+          style={{
+            fontWeight: 700,
+            color: "#737373",
+            fontSize: copyrightFontSize,
+            lineHeight: `${copyrightFontSize}px`,
+            letterSpacing: "0.02em",
+            margin: 0,
+          }}
+        >
+          © 2026 REONU. ALL RIGHTS RESERVED.
+        </p>
+        <FooterNavLink
+          href="#"
+          label="TERMS"
+          className="font-display-headline whitespace-nowrap"
+          style={{ fontWeight: 600, color: "#737373", fontSize: copyrightFontSize, lineHeight: `${copyrightFontSize}px`, letterSpacing: "0.02em" }}
+        />
+        <FooterNavLink
+          href="#"
+          label="PRIVACY POLICY"
+          className="font-display-headline whitespace-nowrap"
+          style={{ fontWeight: 600, color: "#737373", fontSize: copyrightFontSize, lineHeight: `${copyrightFontSize}px`, letterSpacing: "0.02em" }}
+        />
+      </div>
     </>
   );
 }

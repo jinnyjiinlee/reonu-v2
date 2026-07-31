@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "block", // FOUT 방지: 폰트 로드 전 invisible, 로드 후 표시
+  display: "block",
   preload: true,
 });
 
@@ -27,6 +27,12 @@ export default function RootLayout({
             (if enabled at the OS/browser level) doesn't repaint the white
             page background as gray. */}
         <meta name="color-scheme" content="light only" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter+Display:ital,opsz,wght@0,32..144,100..900;1,32..144,100..900&display=block"
+          rel="stylesheet"
+        />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"

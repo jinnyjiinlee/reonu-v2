@@ -39,6 +39,7 @@ export default function ScaleStage({
         overflow: "hidden",
         position: "relative",
         zIndex: 1,
+        pointerEvents: "auto",
       }}
     >
       <div

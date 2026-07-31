@@ -46,7 +46,7 @@ function StartProjectBtn() {
         className="font-headline text-[28px] leading-[34px] font-medium tracking-[-0.01em] text-[#1D1D1F] no-underline"
         style={{
           display: "inline-flex", alignItems: "center", gap: GAP, paddingBottom: 12,
-          transform: hov ? "translateX(0)" : `translateX(-${SLOT}px)`,
+          transform: "translateX(0)",
           transition: `transform ${DUR} ${EASE}`,
         }}
       >
@@ -76,7 +76,7 @@ export default function OurServiceHeading() {
 
     const update = () => {
       const scale     = Math.min(window.innerWidth / DESIGN_W, 1);
-      const scrollY   = window.scrollY;
+      const scrollY = (window as any).__virtualY ?? 0;
       const naturalY  = SECTION_TOP * scale - scrollY;
       const endInView = SECTION_END * scale - scrollY;
 
@@ -99,11 +99,11 @@ export default function OurServiceHeading() {
       bottom.style.pointerEvents = active ? "auto" : "none";
     };
 
-    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("virtual-scroll", update as EventListener);
     window.addEventListener("resize", update);
     update();
     return () => {
-      window.removeEventListener("scroll", update);
+      window.removeEventListener("virtual-scroll", update as EventListener);
       window.removeEventListener("resize", update);
     };
   }, []);

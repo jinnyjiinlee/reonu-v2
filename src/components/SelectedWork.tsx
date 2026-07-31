@@ -5,12 +5,15 @@ const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 const DUR  = "0.5s";
 
 const PAD     = 60;
-const COL_W   = 890;
+const COL_GAP = 24;
+const COL_W   = (1920 - PAD * 2 - COL_GAP) / 2; // (1920-120-40)/2 = 880
 const ROW1_H  = 800;
 const ROW2_H  = 800;
-const COL_GAP = 20;
-const ROW1_Y  = 760;
-const ROW_GAP = 20;
+// ROW1_Y aligns with HeroIntro container bottom (paddingTop:200px + REONU_PH_H + gap:64 + text:96 + paddingBottom:120):
+// At 1512px viewport (scale=0.7875): 200 + 212.4 + 64 + 96 + 120 = 692.4px → canvas = 692.4/0.7875 ≈ 879
+// → 120px gap between paragraph bottom (572px) and image top (692px) at 1512px viewport
+const ROW1_Y  = 879;
+const ROW_GAP = 24;
 const ROW2_Y  = ROW1_Y + ROW1_H + ROW_GAP;
 
 
@@ -24,10 +27,10 @@ const ArrowSVG = ({ color = "#1D1D1F", size = 16 }: { color?: string; size?: num
 );
 
 const works = [
-  { src: "/images/works/work-01.png", x: PAD,                   y: ROW1_Y, h: ROW1_H, w: COL_W, marquee: "(MOMO) • UXUI" },
-  { src: "/images/works/work-03.png", x: PAD + COL_W + COL_GAP, y: ROW1_Y, h: ROW1_H, w: COL_W, marquee: "(MOMO) • UXUI" },
-  { src: "/images/works/work-02.png", x: PAD,                   y: ROW2_Y, h: ROW2_H, w: COL_W, marquee: "(MOMO) • UXUI" },
-  { src: "/images/works/work-04.png", x: PAD + COL_W + COL_GAP, y: ROW2_Y, h: ROW2_H, w: COL_W, marquee: "(MOMO) • UXUI" },
+  { src: "/images/works/work-01.png", marquee: "(MOMO) • UXUI" },
+  { src: "/images/works/work-03.png", marquee: "(MOMO) • UXUI" },
+  { src: "/images/works/work-02.png", marquee: "(MOMO) • UXUI" },
+  { src: "/images/works/work-04.png", marquee: "(MOMO) • UXUI" },
 ];
 
 /* ── WorkCard ────────────────────────────────────────────────────────────── */
@@ -115,7 +118,7 @@ function WorkCard({ src, marquee, index, height, width }: { src: string; marquee
   /* ── Marquee strip ── */
   const strip = Array.from({ length: 10 }).map((_, i) => (
     <span key={i} className="inline-block pr-[40px]">
-      {marquee}&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
+      {marquee}&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;
     </span>
   ));
 
@@ -124,15 +127,15 @@ function WorkCard({ src, marquee, index, height, width }: { src: string; marquee
       ref={cardRef}
       href="#"
       data-cursor="hidden"
-      className="absolute block cursor-none"
-      style={{ width: width, height: height, inset: 0 }}
+      className="block cursor-none"
+      style={{ width: width, height: height, position: "relative", flexShrink: 0 }}
     >
       <div
         style={{
           position:     "absolute",
           inset:        0,
           background:   "#F5F5F7",
-          borderRadius: 12,
+          borderRadius: 0,
           overflow:     "hidden",
         }}
       >
@@ -196,17 +199,17 @@ function WorkCard({ src, marquee, index, height, width }: { src: string; marquee
           zIndex:               1,
         }}
       >
-        Open Project
+        See work
       </span>
     </a>
   );
 }
 
 /* ── SeeAllWorks ─────────────────────────────────────────────────────────── */
-const PILL_H = 48;
-const CIRCLE = 36;
+const PILL_H = 61;
+const CIRCLE = 46;
 
-function SeeAllWorks({ onMouseEnter }: { onMouseEnter?: () => void }) {
+export function SeeAllWorks({ onMouseEnter }: { onMouseEnter?: () => void }) {
   const [hov, setHov] = useState(false);
   return (
     <a
@@ -215,25 +218,25 @@ function SeeAllWorks({ onMouseEnter }: { onMouseEnter?: () => void }) {
       onMouseEnter={() => { setHov(true); onMouseEnter?.(); }}
       onMouseLeave={() => setHov(false)}
       style={{
-        position:   "absolute",
-        left:       "50%",
-        transform:  "translateX(-50%)",
-        top:        ROW1_Y + ROW1_H + ROW_GAP / 2 - PILL_H / 2,
         display:    "inline-flex",
         alignItems: "center",
-        gap:        12,
+        gap:        20,
         height:     PILL_H,
-        paddingLeft:  28,
-        paddingRight: 8,
+        minWidth:   200,
+        paddingLeft:  23,
+        paddingRight: 20,
         overflow:   "hidden",
-        zIndex:     10,
+        position:   "relative",
         textDecoration: "none",
+        background: "transparent",
+        borderRadius: 999,
       }}
     >
+      {/* White backdrop — full pill by default, shrinks to white circle behind arrow on hover */}
       <span style={{
         position:     "absolute",
         top:          hov ? (PILL_H - CIRCLE) / 2 : 0,
-        right:        hov ? 8 : 0,
+        right:        hov ? 10 : 0,
         height:       hov ? CIRCLE : PILL_H,
         width:        hov ? CIRCLE : "100%",
         borderRadius: 999,
@@ -241,18 +244,21 @@ function SeeAllWorks({ onMouseEnter }: { onMouseEnter?: () => void }) {
         transition:   `width ${DUR} ${EASE}, height ${DUR} ${EASE}, top ${DUR} ${EASE}, right ${DUR} ${EASE}`,
         zIndex:       0,
       }} />
+      {/* Text — dark, always visible. White backdrop disappears on hover but text stays */}
       <span
-        className="font-headline text-[20px] leading-[24px] font-medium tracking-[-0.01em] text-[#1D1D1F]"
-        style={{ whiteSpace: "nowrap", position: "relative", zIndex: 1 }}
+        className="font-headline text-[25px] leading-[32px] font-medium tracking-normal"
+        style={{
+          whiteSpace: "nowrap", position: "relative", zIndex: 2,
+          color: "#000000e6",
+        }}
       >
         See all works
       </span>
       <span style={{
         display: "inline-flex", alignItems: "center", justifyContent: "center",
-        position: "relative", zIndex: 1, flexShrink: 0,
-        width: CIRCLE, height: CIRCLE,
+        position: "relative", zIndex: 2, flexShrink: 0,
       }}>
-        <ArrowSVG color="#1D1D1F" size={18} />
+        <ArrowSVG color="#000000e6" size={hov ? 26 : 20} />
       </span>
     </a>
   );
@@ -260,18 +266,39 @@ function SeeAllWorks({ onMouseEnter }: { onMouseEnter?: () => void }) {
 
 /* ── Export ──────────────────────────────────────────────────────────────── */
 export default function SelectedWork() {
+  // Gap center between ROW1 and ROW2 in design canvas:
+  // ROW1_Y(879) + ROW1_H(800) + ROW_GAP/2(12) = 1691 → button top = 1691 - PILL_H/2 = 1667
+  const BTN_TOP = ROW1_Y + ROW1_H + ROW_GAP / 2 - PILL_H / 2; // 1667
+
   return (
     <>
-      {works.map((w, i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{ left: w.x, top: w.y, width: w.w, height: w.h }}
-        >
-          <WorkCard src={w.src} marquee={w.marquee} index={i} height={w.h} width={w.w} />
-        </div>
-      ))}
-      <SeeAllWorks onMouseEnter={() => {}} />
+      <div
+        className="absolute"
+        style={{
+          left:     PAD,
+          top:      ROW1_Y,
+          width:    1920 - PAD * 2,
+          display:  "flex",
+          flexWrap: "wrap",
+          gap:      ROW_GAP,
+        }}
+      >
+        {works.map((w, i) => (
+          <WorkCard key={i} src={w.src} marquee={w.marquee} index={i} height={ROW1_H} width={COL_W} />
+        ))}
+      </div>
+      {/* SeeAllWorks — centered in the gap between row1 and row2 */}
+      <div
+        className="absolute"
+        style={{
+          top:       BTN_TOP,
+          left:      "50%",
+          transform: "translateX(-50%)",
+          zIndex:    10,
+        }}
+      >
+        <SeeAllWorks />
+      </div>
     </>
   );
 }
