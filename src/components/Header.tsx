@@ -4,7 +4,9 @@ import { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 
-const PAD      = "max(3.125vw, calc(50vw - 900px))";
+// Mobile: minimum 24px to align with content sections (matches MobileHome/Works padding)
+// Desktop: follows original viewport-relative formula
+const PAD      = "max(24px, max(3.125vw, calc(50vw - 900px)))";
 const EASE     = "cubic-bezier(0.76, 0, 0.24, 1)";
 
 // Logo — 20px Inter Display weight 800, matching reference

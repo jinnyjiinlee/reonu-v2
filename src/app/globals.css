@@ -377,13 +377,11 @@ html.dark-process .partners-fade-right::after {
   /* Mobile header: 3-column grid so "TURN U BRAND ON" is viewport-centered.
      1fr (logo) | auto (tagline) | 1fr (hamburger) → left & right equal width.
      flex layout on the same element is overridden because !important beats inline normal.
-     Padding matches content section 24px so REONU logo aligns with body text. */
+     Padding is handled by Header.tsx PAD = max(24px,...) — no override needed here. */
   header {
     display: grid !important;
     grid-template-columns: 1fr auto 1fr !important;
     align-items: center !important;
-    padding-left: 24px !important;
-    padding-right: 24px !important;
   }
   /* Align hamburger to right edge of its 1fr column */
   header > div:last-child {
