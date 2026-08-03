@@ -56,7 +56,7 @@ function MobileServiceItem({ svc, lang }: {
           cursor: "pointer",
         }}
       >
-        <span style={{ fontSize: "clamp(36px, 11vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#000000e6" }}>
+        <span style={{ fontSize: "clamp(44px, 14vw, 60px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#000000e6" }}>
           {svc.title}
         </span>
         <span style={{
@@ -99,7 +99,7 @@ function MobileProcessStep({ step, lang }: {
     <div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: "0.06em" }}>{step.num}</span>
-        <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>{step.title}</h3>
+        <h3 style={{ fontSize: "clamp(40px, 13vw, 56px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>{step.title}</h3>
       </div>
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 8, marginBottom: 16, background: C.panel }}>
         <Image src={step.image} alt={step.title} fill style={{ objectFit: "cover" }} sizes="(max-width: 1023px) 90vw, 400px" />
@@ -160,7 +160,7 @@ function MobilePricingCard({ svc, price, lang }: {
   return (
     <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-        <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
+        <h3 style={{ fontSize: "clamp(36px, 12vw, 52px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
           {svc.title}
         </h3>
         <span style={{ fontSize: 18, fontWeight: 700, color: C.ink, whiteSpace: "nowrap" }}>
@@ -584,8 +584,8 @@ export default function MobileHome() {
       <section style={{ padding: "80px 24px", background: C.panel }}>
         <SectionLabel>Pricing</SectionLabel>
         <h2 style={{
-          fontSize: "clamp(44px, 15vw, 64px)", fontWeight: 800,
-          letterSpacing: "-0.05em", lineHeight: 1.1,
+          fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800,
+          letterSpacing: "-0.05em", lineHeight: 1.05,
           margin: "20px 0 48px", color: "#000000e6",
           whiteSpace: "pre-line",
         }}>
@@ -616,8 +616,8 @@ export default function MobileHome() {
       {/* ── Let's Talk Form ───────────────────────────────────────────────── */}
       <section style={{ padding: "80px 24px" }}>
         <h2 style={{
-          fontSize: "clamp(48px, 16vw, 80px)", fontWeight: 800,
-          letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: "#000000e6",
+          fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800,
+          letterSpacing: "-0.05em", lineHeight: 1.05, marginBottom: 16, color: "#000000e6",
         }}>
           Let&apos;s Talk
         </h2>

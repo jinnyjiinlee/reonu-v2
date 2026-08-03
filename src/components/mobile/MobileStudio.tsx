@@ -173,7 +173,7 @@ export default function MobileStudio() {
               {i > 0 && <Divider />}
               <div style={{ padding: "40px 0" }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: "clamp(36px, 11vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
+                  <h3 style={{ fontSize: "clamp(44px, 14vw, 60px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
                     {v.title}
                   </h3>
                   <span style={{ fontSize: "clamp(13px, 3.5vw, 16px)", fontWeight: 600, color: C.muted, letterSpacing: "-0.01em" }}>
@@ -212,7 +212,7 @@ export default function MobileStudio() {
       {/* ── Careers section ───────────────────────────────────────────────── */}
       <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Careers</SectionLabel>
-        <h2 style={{ fontSize: "clamp(44px, 15vw, 64px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.1, margin: "20px 0 48px", color: "#000000e6", whiteSpace: "pre-line" }}>
+        <h2 style={{ fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.05, margin: "20px 0 48px", color: "#000000e6", whiteSpace: "pre-line" }}>
           {ko ? "포트폴리오 &\n경력 사항" : "Portfolio &\nExperience"}
         </h2>
 
