@@ -128,7 +128,7 @@ export default function MobileStudio() {
       {/* ── Hero text (from StudioHeroIntro) ──────────────────────────────── */}
       <section style={{ minHeight: "60dvh", padding: "calc(64px + 48px) 24px 48px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         <div>
-          <h1 style={{ fontSize: "clamp(56px, 17vw, 88px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 32 }}>
+          <h1 style={{ fontSize: "clamp(64px, 20vw, 96px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 32 }}>
             REONU®
           </h1>
           <p style={{ fontSize: "clamp(15px, 4vw, 18px)", lineHeight: "170%", color: "#1D1D1F", fontWeight: 500, maxWidth: "90%" }}>
@@ -173,7 +173,7 @@ export default function MobileStudio() {
               {i > 0 && <Divider />}
               <div style={{ padding: "40px 0" }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: "clamp(28px, 8vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
+                  <h3 style={{ fontSize: "clamp(36px, 11vw, 48px)", fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
                     {v.title}
                   </h3>
                   <span style={{ fontSize: "clamp(13px, 3.5vw, 16px)", fontWeight: 600, color: C.muted, letterSpacing: "-0.01em" }}>
@@ -212,14 +212,14 @@ export default function MobileStudio() {
       {/* ── Careers section ───────────────────────────────────────────────── */}
       <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Careers</SectionLabel>
-        <h2 style={{ fontSize: "clamp(36px, 10vw, 56px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.1, margin: "20px 0 48px", color: "#000000e6", whiteSpace: "pre-line" }}>
+        <h2 style={{ fontSize: "clamp(44px, 15vw, 64px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.1, margin: "20px 0 48px", color: "#000000e6", whiteSpace: "pre-line" }}>
           {ko ? "포트폴리오 &\n경력 사항" : "Portfolio &\nExperience"}
         </h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
           {JOBS.map((job) => (
             <div key={job.category}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em", color: "#000000e6", marginBottom: 16 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", color: "#000000e6", marginBottom: 16 }}>
                 {job.category}
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
