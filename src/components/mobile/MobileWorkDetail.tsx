@@ -61,7 +61,7 @@ export default function MobileWorkDetail({ item, next }: { item: WorkItem; next:
         }}>
           {item.title[lang]}
         </h1>
-        <p style={{ fontSize: 15, lineHeight: "170%", color: C.body, maxWidth: "90%" }}>
+        <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", maxWidth: "90%" }}>
           {item.description[lang]}
         </p>
       </section>

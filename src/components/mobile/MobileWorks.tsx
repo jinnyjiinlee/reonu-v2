@@ -58,7 +58,7 @@ export default function MobileWorks() {
         <h1 style={{ fontSize: "clamp(48px, 14vw, 80px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 20 }}>
           Works
         </h1>
-        <p style={{ fontSize: 15, color: C.body, lineHeight: "170%", marginBottom: 0 }}>
+        <p style={{ fontSize: 15, color: "#000000b3", lineHeight: "170%", marginBottom: 0 }}>
           {ko
             ? "지금까지 REONU®가 만들어온 결과물들을 확인해보세요."
             : "Explore the work REONU® has created."
@@ -88,7 +88,7 @@ export default function MobileWorks() {
       </div>
 
       {/* ── Works grid ────────────────────────────────────────────────────── */}
-      <div style={{ padding: "0 16px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ padding: "0 24px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {filtered.map((work) => (
           <Link key={work.id} href={`/works/${work.id}`} style={{ textDecoration: "none", display: "block" }}>
             <div style={{

@@ -54,7 +54,7 @@ function FAQItem({ q, a, open, onToggle }: { q: string; a: string[]; open: boole
       {open && (
         <div style={{ paddingBottom: 24 }}>
           {a.map((line, i) => (
-            <p key={i} style={{ fontSize: 15, color: C.body, lineHeight: "170%", margin: 0 }}>
+            <p key={i} style={{ fontSize: 15, color: "#000000b3", lineHeight: "170%", margin: 0 }}>
               {line}
             </p>
           ))}
@@ -240,7 +240,7 @@ export default function MobileContact() {
         <h1 style={{ fontSize: "clamp(40px, 12vw, 64px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: C.ink }}>
           Let&apos;s Talk
         </h1>
-        <p style={{ fontSize: 16, color: C.body, marginBottom: 40, lineHeight: "170%", whiteSpace: "pre-line" }}>
+        <p style={{ fontSize: 16, color: "#000000b3", marginBottom: 40, lineHeight: "170%", whiteSpace: "pre-line" }}>
           {ko ? "아이디어, 목표, 혹은 해결하고 싶은 과제가 있으신가요?\n함께 특별한 결과물을 만들어가겠습니다." : "Have an idea, a goal, or a challenge to solve?\nLet's create something remarkable together."}
         </p>
         <ContactForm lang={lang} />

@@ -131,7 +131,7 @@ export default function MobileStudio() {
           <h1 style={{ fontSize: "clamp(56px, 17vw, 88px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 32 }}>
             REONU®
           </h1>
-          <p style={{ fontSize: "clamp(15px, 4vw, 18px)", lineHeight: "170%", color: C.body, maxWidth: "90%" }}>
+          <p style={{ fontSize: "clamp(15px, 4vw, 18px)", lineHeight: "170%", color: "#1D1D1F", fontWeight: 500, maxWidth: "90%" }}>
             <strong style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>WE ARE REONU®</strong>
             {ko ? " — 브랜드 안에 이미 담겨 있는 가치를 발견하고 그것을 선명하고 확장 가능한 디자인으로 구현하는 디자인 스튜디오입니다."
                 : " — a design studio that uncovers the value already held within a brand, and brings it to life as sharp, scalable design."
@@ -179,7 +179,7 @@ export default function MobileStudio() {
                     {v.ko_label}
                   </span>
                 </div>
-                <p style={{ fontSize: 15, lineHeight: "170%", color: C.body, margin: 0 }}>
+                <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", margin: 0 }}>
                   {v.desc[lang][0]}<br />{v.desc[lang][1]}
                 </p>
               </div>
@@ -223,7 +223,7 @@ export default function MobileStudio() {
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {job.items.map((item, i) => (
-                  <p key={i} style={{ fontSize: 15, fontWeight: 500, color: C.body, lineHeight: "150%", margin: 0 }}>
+                  <p key={i} style={{ fontSize: 15, fontWeight: 500, color: "#000000b3", lineHeight: "150%", margin: 0 }}>
                     {item[lang]}
                   </p>
                 ))}

@@ -70,7 +70,7 @@ function MobileServiceItem({ svc, lang }: {
       </button>
       {open && (
         <div style={{ paddingLeft: 24, paddingRight: 24, paddingBottom: 32 }}>
-          <p style={{ fontSize: 15, lineHeight: "170%", color: C.body, marginBottom: 20 }}>
+          <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
             {svc.desc[lang][0]}<br />{svc.desc[lang][1]}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -104,14 +104,14 @@ function MobileProcessStep({ step, lang }: {
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 8, marginBottom: 16, background: C.panel }}>
         <Image src={step.image} alt={step.title} fill style={{ objectFit: "cover" }} sizes="(max-width: 1023px) 90vw, 400px" />
       </div>
-      <p style={{ fontSize: 15, lineHeight: "170%", color: C.body, marginBottom: 12 }}>
+      <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", marginBottom: 12 }}>
         {step.desc[lang][0]}<br />{step.desc[lang][1]}
       </p>
       <div style={{ display: "flex", gap: 8 }}>
         {step.tags.map((tag) => (
           <span key={tag} style={{
-            fontSize: 12, fontWeight: 600, letterSpacing: "0.04em",
-            color: C.muted, background: C.panel, borderRadius: 999,
+            fontSize: 12, fontWeight: 500, letterSpacing: "0.04em",
+            color: "#b8b8b8", background: C.panel, borderRadius: 999,
             padding: "4px 12px",
           }}>
             {tag}
@@ -167,7 +167,7 @@ function MobilePricingCard({ svc, price, lang }: {
           {price[lang]}
         </span>
       </div>
-      <p style={{ fontSize: 14, lineHeight: "170%", color: C.body, marginBottom: 20 }}>
+      <p style={{ fontSize: 14, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
         {svc.desc[lang][0]} {svc.desc[lang][1]}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -475,7 +475,7 @@ export default function MobileHome() {
               IntroAnimation behavior. */}
           <p style={{
             fontSize: "clamp(16px, 4.2vw, 20px)",
-            lineHeight: "170%", color: C.body,
+            lineHeight: "170%", color: "#000000e6", fontWeight: 500,
             maxWidth: "90%",
           }}>
             {ko ? (
@@ -487,10 +487,10 @@ export default function MobileHome() {
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.05em", color: C.muted }}>
+          <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.05em", color: "#b0b0b0" }}>
             Global Design Studio
           </span>
-          <LocalTime fontSize={13} color={C.muted} fontWeight={600} letterSpacing="0.05em" />
+          <LocalTime fontSize={13} color="#b0b0b0" fontWeight={600} letterSpacing="0.05em" />
         </div>
       </section>
 
@@ -612,7 +612,7 @@ export default function MobileHome() {
         }}>
           Let&apos;s Talk
         </h2>
-        <p style={{ fontSize: 16, color: C.body, marginBottom: 40, lineHeight: "170%" }}>
+        <p style={{ fontSize: 16, color: "#000000b3", marginBottom: 40, lineHeight: "170%" }}>
           {ko
             ? "아이디어, 목표, 혹은 해결하고 싶은 과제가 있으신가요?"
             : "Have an idea, a goal, or a challenge to solve?"
