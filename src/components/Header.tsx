@@ -339,8 +339,8 @@ export default function Header({ initialVisible = false }: { initialVisible?: bo
         style={{
           height:          64,
           zIndex:          10001,
-          display:         "flex",
-          flexDirection:   "row",
+          display:         "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems:      "center",
           paddingLeft:     PAD,
           paddingRight:    PAD,
@@ -349,8 +349,8 @@ export default function Header({ initialVisible = false }: { initialVisible?: bo
           mixBlendMode:    "difference",
         }}
       >
-        {/* Section 1 — Logo (left, flex: 1) */}
-        <div style={{ flex: "1 0 auto", display: "flex", alignItems: "center", minWidth: 0 }}>
+        {/* Section 1 — Logo (left, 1fr) */}
+        <div style={{ display: "flex", alignItems: "center" }}>
           <a id="header-logo" href="/" className="font-display-headline" style={{
             fontSize: FS_LOGO, lineHeight: LH_LOGO, fontWeight: FW_LOGO,
             letterSpacing: LS_LOGO, color: "inherit",
@@ -362,9 +362,9 @@ export default function Header({ initialVisible = false }: { initialVisible?: bo
           </a>
         </div>
 
-        {/* Section 2 — Tagline (center, flex: 1 shrinkable, justify: center)
-            Hidden below 1100px via .header-tagline CSS class in globals.css */}
-        <div className="header-tagline" style={{ flex: "1 1 auto", display: "flex", justifyContent: "center", alignItems: "center", minWidth: 0, overflow: "hidden" }}>
+        {/* Section 2 — Tagline (center, auto — always exactly centered)
+            Hidden between 1024–1100px via .header-tagline CSS class in globals.css */}
+        <div className="header-tagline" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div id="header-tagline" className="font-display-headline" style={{
             fontSize: FS_NAV, lineHeight: LH_NAV, fontWeight: FW_NAV,
             letterSpacing: LS_NAV, color: "inherit",
@@ -375,9 +375,9 @@ export default function Header({ initialVisible = false }: { initialVisible?: bo
           </div>
         </div>
 
-        {/* Section 3 — Nav (right, flex: 0 no-shrink, justify: flex-end)
+        {/* Section 3 — Nav (right, 1fr, justify: flex-end)
             Desktop: nav links. Mobile: hamburger button only. */}
-        <div style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: "clamp(20px, 3.125vw, 60px)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "clamp(20px, 3.125vw, 60px)" }}>
           {/* Desktop nav — hidden on mobile */}
           <nav className="hidden lg:flex" style={{ flexDirection: "row", alignItems: "center", gap: "clamp(20px, 3.125vw, 60px)" }}>
             {(["WORKS", "STUDIO", "CONTACT"] as const).map((label) => (
