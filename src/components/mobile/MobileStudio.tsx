@@ -212,7 +212,7 @@ export default function MobileStudio() {
       {/* ── Careers section ───────────────────────────────────────────────── */}
       <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Careers</SectionLabel>
-        <h2 style={{ fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.05, margin: "20px 0 48px", color: "#000000e6", whiteSpace: "pre-line" }}>
+        <h2 style={{ fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1.05, margin: "20px 0 48px", color: "#000000", whiteSpace: "pre-line" }}>
           {ko ? "포트폴리오 &\n경력 사항" : "Portfolio &\nExperience"}
         </h2>
 

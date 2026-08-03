@@ -76,7 +76,7 @@ function MobileServiceItem({ svc, lang }: {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {svc.chips.map((chip) => (
               <span key={chip} style={{
-                fontSize: 13, fontWeight: 600, color: C.ink,
+                fontSize: 13, fontWeight: 600, color: "#000000e6",
                 background: C.panel, borderRadius: 999,
                 padding: "6px 14px",
               }}>
@@ -586,7 +586,7 @@ export default function MobileHome() {
         <h2 style={{
           fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800,
           letterSpacing: "-0.05em", lineHeight: 1.05,
-          margin: "20px 0 48px", color: "#000000e6",
+          margin: "20px 0 48px", color: "#000000",
           whiteSpace: "pre-line",
         }}>
           {ko ? "서비스를\n시작해보세요." : "Start your\nproject today."}
@@ -617,7 +617,7 @@ export default function MobileHome() {
       <section style={{ padding: "80px 24px" }}>
         <h2 style={{
           fontSize: "clamp(64px, 20vw, 88px)", fontWeight: 800,
-          letterSpacing: "-0.05em", lineHeight: 1.05, marginBottom: 16, color: "#000000e6",
+          letterSpacing: "-0.05em", lineHeight: 1.05, marginBottom: 16, color: "#000000",
         }}>
           Let&apos;s Talk
         </h2>
