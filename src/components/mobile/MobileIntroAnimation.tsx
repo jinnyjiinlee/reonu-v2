@@ -47,14 +47,19 @@ export default function MobileIntroAnimation() {
     const fontPx      = Math.max(64, Math.min(window.innerWidth * 0.20, 100));
     const targetScale = LOGO_FS / fontPx;
 
-    // REONU X delta: starts at OVERLAY_L (24px), ends at header paddingLeft (also 24px on mobile)
-    // globals.css overrides header padding-left to 24px !important on mobile,
-    // so OVERLAY_L === headerPAD → reonuEndX = 0 (no horizontal movement needed)
-    const reonuEndX  = 0;
-
+    // REONU X delta: measured from real #header-logo left edge after layout.
+    // Same approach as tagline — getBoundingClientRect gives exact pixel position
+    // regardless of what CSS sets the header padding to.
+    let reonuEndX = 0;
     // Tagline target X: read real #header-tagline position after CSS grid layout settles
     let taglineTargetX = 0;
-    function computeTaglineTarget() {
+    function computeTargets() {
+      // Logo target
+      if (logo) {
+        const r = logo.getBoundingClientRect();
+        if (r.width > 0) reonuEndX = r.left - OVERLAY_L;
+      }
+      // Tagline target
       if (hTagline) {
         const rect = hTagline.getBoundingClientRect();
         if (rect.width > 0) {
@@ -65,7 +70,7 @@ export default function MobileIntroAnimation() {
       const myW = tagEl?.offsetWidth || 100;
       taglineTargetX = window.innerWidth / 2 - myW / 2 - OVERLAY_L;
     }
-    requestAnimationFrame(computeTaglineTarget);
+    requestAnimationFrame(computeTargets);
 
     // ── Inline !important opacity helpers ────────────────────────────────────
     const hide = (el: HTMLElement | null) => {
