@@ -140,15 +140,15 @@ export default function MobileStudio() {
         </div>
 
         <Link href="/contact" style={{
-          display: "inline-flex", alignItems: "center", gap: 10,
+          display: "inline-flex", alignItems: "center", gap: 12,
           background: C.ink, color: "#fff",
-          padding: "16px 28px", borderRadius: 999,
-          fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em",
+          padding: "18px 28px", borderRadius: 999,
+          fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em",
           textDecoration: "none", alignSelf: "flex-start", marginTop: 40,
         }}>
           {ko ? "함께 일하기" : "Work With Us"}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
       </section>
@@ -235,14 +235,14 @@ export default function MobileStudio() {
 
         <div style={{ marginTop: 48 }}>
           <Link href="/contact" style={{
-            display: "inline-flex", alignItems: "center", gap: 10,
+            display: "inline-flex", alignItems: "center", gap: 12,
             background: C.ink, color: "#fff",
-            padding: "16px 28px", borderRadius: 999,
-            fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em", textDecoration: "none",
+            padding: "18px 28px", borderRadius: 999,
+            fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", textDecoration: "none",
           }}>
             {ko ? "문의하기" : "Get in Touch"}
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
         </div>

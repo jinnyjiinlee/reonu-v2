@@ -192,8 +192,13 @@ function ContactForm({ lang }: { lang: "ko" | "en" }) {
         </label>
         {errors.agree && <p style={{ fontSize: 12, color: "#FF3B30", marginTop: 4 }}>{errors.agree}</p>}
       </div>
-      <button type="submit" disabled={status === "sending"} style={{ width: "100%", background: C.ink, color: "#fff", border: "none", borderRadius: 10, padding: "18px", fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em", cursor: status === "sending" ? "not-allowed" : "pointer", opacity: status === "sending" ? 0.7 : 1, marginTop: 8 }}>
+      <button type="submit" disabled={status === "sending"} style={{ width: "100%", background: C.ink, color: "#fff", border: "none", borderRadius: 999, padding: "18px", fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", cursor: status === "sending" ? "not-allowed" : "pointer", opacity: status === "sending" ? 0.7 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
         {status === "sending" ? (ko ? "전송 중..." : "Sending...") : (ko ? "메시지 보내기" : "Send Message")}
+        {status !== "sending" && (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
       </button>
       {status === "error" && <p style={{ fontSize: 14, color: "#FF3B30", textAlign: "center" }}>{ko ? "전송에 실패했습니다. 다시 시도해주세요." : "Something went wrong. Please try again."}</p>}
     </form>

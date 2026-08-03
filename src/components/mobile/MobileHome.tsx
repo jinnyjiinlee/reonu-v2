@@ -367,19 +367,25 @@ function MobileContactForm({ lang }: { lang: "ko" | "en" }) {
         style={{
           width: "100%",
           background: C.ink, color: "#fff",
-          border: "none", borderRadius: 10,
-          padding: "18px", fontSize: 16, fontWeight: 700,
+          border: "none", borderRadius: 999,
+          padding: "18px", fontSize: 16, fontWeight: 600,
           letterSpacing: "-0.01em",
           cursor: status === "sending" ? "not-allowed" : "pointer",
           opacity: status === "sending" ? 0.7 : 1,
           transition: "opacity 0.2s ease",
           marginTop: 8,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
         }}
       >
         {status === "sending"
           ? (ko ? "전송 중..." : "Sending...")
           : (ko ? "메시지 보내기" : "Send Message")
         }
+        {status !== "sending" && (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
       </button>
 
       {status === "error" && (
@@ -499,12 +505,16 @@ export default function MobileHome() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
           <SectionLabel>Selected Work</SectionLabel>
           <Link href="/works" style={{
-            fontSize: 13, fontWeight: 600, color: C.ink,
-            textDecoration: "none", display: "flex", alignItems: "center", gap: 4,
+            fontSize: 13, fontWeight: 700, color: C.ink,
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7,
+            border: `1.5px solid ${C.ink}`,
+            borderRadius: 999,
+            padding: "8px 16px",
+            letterSpacing: "-0.01em",
           }}>
             {ko ? "전체 보기" : "View All"}
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Link>
         </div>
@@ -591,15 +601,15 @@ export default function MobileHome() {
         </div>
 
         <Link href="/contact" style={{
-          display: "inline-flex", alignItems: "center", gap: 10, marginTop: 40,
+          display: "inline-flex", alignItems: "center", gap: 12, marginTop: 48,
           background: C.ink, color: "#fff",
-          padding: "16px 28px", borderRadius: 999,
-          fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em",
+          padding: "18px 28px", borderRadius: 999,
+          fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em",
           textDecoration: "none",
         }}>
           {ko ? "프로젝트 시작하기" : "Start a Project"}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
       </section>
