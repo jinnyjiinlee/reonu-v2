@@ -47,9 +47,10 @@ export default function MobileIntroAnimation() {
     const fontPx      = Math.max(64, Math.min(window.innerWidth * 0.20, 100));
     const targetScale = LOGO_FS / fontPx;
 
-    // REONU X delta: starts at OVERLAY_L (24px), ends at headerPAD (~12.5px on 400px)
-    const headerPAD  = Math.max(window.innerWidth * 0.03125, 0);
-    const reonuEndX  = headerPAD - OVERLAY_L;   // float — no round, lerp handles smoothness
+    // REONU X delta: starts at OVERLAY_L (24px), ends at header paddingLeft (also 24px on mobile)
+    // globals.css overrides header padding-left to 24px !important on mobile,
+    // so OVERLAY_L === headerPAD → reonuEndX = 0 (no horizontal movement needed)
+    const reonuEndX  = 0;
 
     // Tagline target X: read real #header-tagline position after CSS grid layout settles
     let taglineTargetX = 0;
