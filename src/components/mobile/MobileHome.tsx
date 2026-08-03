@@ -70,7 +70,7 @@ function MobileServiceItem({ svc, lang }: {
       </button>
       {open && (
         <div style={{ paddingLeft: 24, paddingRight: 24, paddingBottom: 32 }}>
-          <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
+          <p style={{ fontSize: 16, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
             {svc.desc[lang][0]}<br />{svc.desc[lang][1]}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -104,7 +104,7 @@ function MobileProcessStep({ step, lang }: {
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 8, marginBottom: 16, background: C.panel }}>
         <Image src={step.image} alt={step.title} fill style={{ objectFit: "cover" }} sizes="(max-width: 1023px) 90vw, 400px" />
       </div>
-      <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", marginBottom: 12 }}>
+      <p style={{ fontSize: 16, lineHeight: "170%", color: "#000000b3", marginBottom: 12 }}>
         {step.desc[lang][0]}<br />{step.desc[lang][1]}
       </p>
       <div style={{ display: "flex", gap: 8 }}>
@@ -167,7 +167,7 @@ function MobilePricingCard({ svc, price, lang }: {
           {price[lang]}
         </span>
       </div>
-      <p style={{ fontSize: 14, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
+      <p style={{ fontSize: 15, lineHeight: "170%", color: "#000000b3", marginBottom: 20 }}>
         {svc.desc[lang][0]} {svc.desc[lang][1]}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -368,21 +368,19 @@ function MobileContactForm({ lang }: { lang: "ko" | "en" }) {
           width: "100%",
           background: C.ink, color: "#fff",
           border: "none", borderRadius: 999,
-          padding: "18px", fontSize: 16, fontWeight: 600,
+          padding: "20px 24px 20px 28px",
+          fontSize: 17, fontWeight: 600,
           letterSpacing: "-0.01em",
           cursor: status === "sending" ? "not-allowed" : "pointer",
           opacity: status === "sending" ? 0.7 : 1,
           transition: "opacity 0.2s ease",
-          marginTop: 8,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+          marginTop: 16,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
         }}
       >
-        {status === "sending"
-          ? (ko ? "전송 중..." : "Sending...")
-          : (ko ? "메시지 보내기" : "Send Message")
-        }
+        <span>{status === "sending" ? (ko ? "전송 중..." : "Sending...") : (ko ? "메시지 보내기" : "Send Message")}</span>
         {status !== "sending" && (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
@@ -601,14 +599,14 @@ export default function MobileHome() {
         </div>
 
         <Link href="/contact" style={{
-          display: "inline-flex", alignItems: "center", gap: 12, marginTop: 48,
+          display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 48,
           background: C.ink, color: "#fff",
-          padding: "18px 28px", borderRadius: 999,
-          fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em",
+          padding: "20px 24px 20px 28px", borderRadius: 999,
+          fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em",
           textDecoration: "none",
         }}>
           {ko ? "프로젝트 시작하기" : "Start a Project"}
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>

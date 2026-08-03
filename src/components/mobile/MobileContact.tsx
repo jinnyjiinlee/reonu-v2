@@ -192,10 +192,10 @@ function ContactForm({ lang }: { lang: "ko" | "en" }) {
         </label>
         {errors.agree && <p style={{ fontSize: 12, color: "#FF3B30", marginTop: 4 }}>{errors.agree}</p>}
       </div>
-      <button type="submit" disabled={status === "sending"} style={{ width: "100%", background: C.ink, color: "#fff", border: "none", borderRadius: 999, padding: "18px", fontSize: 16, fontWeight: 600, letterSpacing: "-0.01em", cursor: status === "sending" ? "not-allowed" : "pointer", opacity: status === "sending" ? 0.7 : 1, marginTop: 8, display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
-        {status === "sending" ? (ko ? "전송 중..." : "Sending...") : (ko ? "메시지 보내기" : "Send Message")}
+      <button type="submit" disabled={status === "sending"} style={{ width: "100%", background: C.ink, color: "#fff", border: "none", borderRadius: 999, padding: "20px 24px 20px 28px", fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em", cursor: status === "sending" ? "not-allowed" : "pointer", opacity: status === "sending" ? 0.7 : 1, marginTop: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>{status === "sending" ? (ko ? "전송 중..." : "Sending...") : (ko ? "메시지 보내기" : "Send Message")}</span>
         {status !== "sending" && (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
