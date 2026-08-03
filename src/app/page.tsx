@@ -30,6 +30,13 @@ const CANVAS_H = 11263 + PRICING_SHIFT - FOOTER_CANVAS_H; // reduced from 11726 
 export default function Page() {
   return (
     <>
+      {/* Mobile home page: hide real header logo + tagline from the start.
+          MobileIntroAnimation renders overlay copies and fades in the real ones on scroll.
+          This <style> overrides the mobile globals.css "opacity: 1 !important" rule
+          so there is no flash of the real elements before JS hydration runs.
+          Cascade order: globals.css <link> → this <style> → JS inline !important wins. */}
+      <style>{`@media (max-width: 1023px) { #header-logo, #header-tagline { opacity: 0 !important; } }`}</style>
+
       {/* Shared — visible on all screen sizes */}
       <Header />
 

@@ -56,7 +56,7 @@ function MobileServiceItem({ svc, lang }: {
           cursor: "pointer",
         }}
       >
-        <span style={{ fontSize: "clamp(28px, 8vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", color: C.ink }}>
+        <span style={{ fontSize: "clamp(28px, 8vw, 40px)", fontWeight: 800, letterSpacing: "-0.03em", color: "#000000e6" }}>
           {svc.title}
         </span>
         <span style={{
@@ -99,7 +99,7 @@ function MobileProcessStep({ step, lang }: {
     <div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: "0.06em" }}>{step.num}</span>
-        <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: C.ink }}>{step.title}</h3>
+        <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>{step.title}</h3>
       </div>
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 8, marginBottom: 16, background: C.panel }}>
         <Image src={step.image} alt={step.title} fill style={{ objectFit: "cover" }} sizes="(max-width: 1023px) 90vw, 400px" />
@@ -160,7 +160,7 @@ function MobilePricingCard({ svc, price, lang }: {
   return (
     <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-        <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.04em", margin: 0, color: C.ink }}>
+        <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", margin: 0, color: "#000000e6" }}>
           {svc.title}
         </h3>
         <span style={{ fontSize: 18, fontWeight: 700, color: C.ink, whiteSpace: "nowrap" }}>
@@ -177,7 +177,7 @@ function MobilePricingCard({ svc, price, lang }: {
               <circle cx="12" cy="12" r="10.5" stroke={C.ink} strokeWidth="1.7" />
               <path d="M7.5 12.5l3 3 6-6" stroke={C.ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{chip}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "#000000e6" }}>{chip}</span>
           </div>
         ))}
       </div>
@@ -585,8 +585,8 @@ export default function MobileHome() {
         <SectionLabel>Pricing</SectionLabel>
         <h2 style={{
           fontSize: "clamp(32px, 9vw, 48px)", fontWeight: 800,
-          letterSpacing: "-0.04em", lineHeight: 1.1,
-          margin: "20px 0 48px", color: C.ink,
+          letterSpacing: "-0.05em", lineHeight: 1.1,
+          margin: "20px 0 48px", color: "#000000e6",
           whiteSpace: "pre-line",
         }}>
           {ko ? "서비스를\n시작해보세요." : "Start your\nproject today."}
@@ -600,10 +600,11 @@ export default function MobileHome() {
 
         <Link href="/contact" style={{
           display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 48,
+          width: "100%",
           background: C.ink, color: "#fff",
           padding: "20px 24px 20px 28px", borderRadius: 999,
           fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em",
-          textDecoration: "none",
+          textDecoration: "none", boxSizing: "border-box",
         }}>
           {ko ? "프로젝트 시작하기" : "Start a Project"}
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -616,7 +617,7 @@ export default function MobileHome() {
       <section style={{ padding: "80px 24px" }}>
         <h2 style={{
           fontSize: "clamp(40px, 12vw, 64px)", fontWeight: 800,
-          letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: C.ink,
+          letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: "#000000e6",
         }}>
           Let&apos;s Talk
         </h2>
