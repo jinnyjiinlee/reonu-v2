@@ -88,12 +88,12 @@ export default function MobileWorks() {
       </div>
 
       {/* ── Works grid ────────────────────────────────────────────────────── */}
-      <div style={{ padding: "0 12px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+      <div style={{ padding: "0 16px 80px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {filtered.map((work) => (
           <Link key={work.id} href={`/works/${work.id}`} style={{ textDecoration: "none", display: "block" }}>
             <div style={{
-              position: "relative", width: "100%", aspectRatio: "1/1",
-              overflow: "hidden", borderRadius: 6, background: C.panel,
+              position: "relative", width: "100%", aspectRatio: "4/5",
+              overflow: "hidden", borderRadius: 8, background: C.panel,
             }}>
               <Image
                 src={work.image}
@@ -103,22 +103,23 @@ export default function MobileWorks() {
                 sizes="(max-width: 1023px) 47vw, 400px"
               />
             </div>
-            <div style={{ padding: "10px 4px 4px" }}>
+            <div style={{ padding: "10px 2px 6px" }}>
               <p style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: "0.06em",
-                color: C.muted, textTransform: "uppercase", margin: "0 0 4px",
-              }}>
-                {work.category}
-              </p>
-              <p style={{
-                fontSize: 13, fontWeight: 600, color: C.ink,
-                margin: 0, lineHeight: "140%",
+                fontSize: 13, fontWeight: 700, color: C.ink,
+                margin: "0 0 4px", lineHeight: "130%",
+                letterSpacing: "-0.02em",
                 overflow: "hidden", textOverflow: "ellipsis",
                 display: "-webkit-box",
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical" as const,
               }}>
                 {work.title[lang]}
+              </p>
+              <p style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.07em",
+                color: C.muted, textTransform: "uppercase", margin: 0,
+              }}>
+                {FILTER_LABELS[work.category as Filter]}
               </p>
             </div>
           </Link>

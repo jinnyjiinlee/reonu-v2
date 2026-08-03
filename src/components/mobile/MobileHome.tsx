@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useRef, FormEvent } from "react";
 import { useLang } from "@/context/LanguageContext";
 import { services, processSteps, partnersRowA, partnersRowB } from "@/data/content";
-import { WORKS_DATA } from "@/data/works";
+import { WORKS_DATA, CATEGORY_LABELS } from "@/data/works";
 import LocalTime from "@/components/LocalTime";
 
 // First 4 works for the "Selected Work" preview
@@ -283,14 +283,19 @@ function MobileContactForm({ lang }: { lang: "ko" | "en" }) {
       {/* Service */}
       <div>
         <label style={labelStyle}>{ko ? "의뢰 분야" : "Service"}</label>
-        <select
-          value={scope}
-          onChange={(e) => setScope(e.target.value)}
-          style={{ ...inputStyle, cursor: "pointer", appearance: "none" as const }}
-        >
-          <option value="">{ko ? "선택해주세요" : "Select a service"}</option>
-          {scopeOptions.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ position: "relative" }}>
+          <select
+            value={scope}
+            onChange={(e) => setScope(e.target.value)}
+            style={{ ...inputStyle, paddingRight: 40, cursor: "pointer", appearance: "none" as const }}
+          >
+            <option value="">{ko ? "선택해주세요" : "Select a service"}</option>
+            {scopeOptions.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: C.muted }}>
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
 
       {/* Message */}
@@ -309,14 +314,19 @@ function MobileContactForm({ lang }: { lang: "ko" | "en" }) {
       {/* Budget */}
       <div>
         <label style={labelStyle}>{ko ? "예산" : "Budget"}</label>
-        <select
-          value={budget}
-          onChange={(e) => setBudget(e.target.value)}
-          style={{ ...inputStyle, cursor: "pointer", appearance: "none" as const }}
-        >
-          <option value="">{ko ? "예산 범위 선택" : "Select budget range"}</option>
-          {budgetOptions.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ position: "relative" }}>
+          <select
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+            style={{ ...inputStyle, paddingRight: 40, cursor: "pointer", appearance: "none" as const }}
+          >
+            <option value="">{ko ? "예산 범위 선택" : "Select budget range"}</option>
+            {budgetOptions.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: C.muted }}>
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
 
       {/* Email */}
@@ -447,20 +457,22 @@ export default function MobileHome() {
     <div className="lg:hidden font-headline" style={{ background: C.paper, color: C.ink }}>
 
       {/* ── Hero Section ──────────────────────────────────────────────────── */}
+      {/* paddingTop clears the fixed REONU overlay: header(64) + gap(48) + font + gap(32).
+          paddingLeft matches the overlay left: max(3.125vw, calc(50vw - 900px)) so REONU,
+          TURN U BRAND ON, and the description text share the same left edge.
+          No minHeight — the large REONU overlay fills visual space; the text content
+          sits naturally below it without an artificial 100dvh gap. */}
       <section style={{
-        minHeight: "100dvh",
-        padding: "0 24px 48px",
-        paddingTop: "calc(64px + 48px)",
-        display: "flex", flexDirection: "column", justifyContent: "space-between",
+        paddingTop: "calc(64px + 48px + clamp(64px, 20vw, 100px) + 32px)",
+        paddingBottom: "48px",
+        paddingLeft: "24px",
+        paddingRight: "24px",
+        display: "flex", flexDirection: "column", gap: "32px",
       }}>
         <div>
-          <h1 style={{
-            fontSize: "clamp(64px, 20vw, 100px)",
-            fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em",
-            marginBottom: 32, color: C.ink,
-          }}>
-            REONU®
-          </h1>
+          {/* REONU® heading removed — MobileIntroAnimation renders it as a fixed
+              overlay that scrolls/fades into the header, matching the desktop
+              IntroAnimation behavior. */}
           <p style={{
             fontSize: "clamp(16px, 4.2vw, 20px)",
             lineHeight: "170%", color: C.body,
@@ -497,12 +509,12 @@ export default function MobileHome() {
           </Link>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {SELECTED.map((work) => (
             <Link key={work.id} href={`/works/${work.id}`} style={{ textDecoration: "none", display: "block" }}>
               <div style={{
-                position: "relative", width: "100%", aspectRatio: "1/1",
-                overflow: "hidden", borderRadius: 6, background: C.panel,
+                position: "relative", width: "100%", aspectRatio: "4/5",
+                overflow: "hidden", borderRadius: 8, background: C.panel,
               }}>
                 <Image
                   src={work.image} alt={work.title[lang]} fill
@@ -510,13 +522,21 @@ export default function MobileHome() {
                   sizes="(max-width: 1023px) 45vw, 400px"
                 />
               </div>
-              <p style={{
-                fontSize: 12, fontWeight: 600, color: C.body,
-                marginTop: 8, letterSpacing: "-0.01em", lineHeight: "140%",
-                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>
-                {work.title[lang]}
-              </p>
+              <div style={{ marginTop: 10 }}>
+                <p style={{
+                  fontSize: 13, fontWeight: 700, color: C.ink,
+                  margin: "0 0 4px", letterSpacing: "-0.02em", lineHeight: "130%",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {work.title[lang]}
+                </p>
+                <p style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: "0.07em",
+                  color: C.muted, textTransform: "uppercase", margin: 0,
+                }}>
+                  {CATEGORY_LABELS[work.category]}
+                </p>
+              </div>
             </Link>
           ))}
         </div>

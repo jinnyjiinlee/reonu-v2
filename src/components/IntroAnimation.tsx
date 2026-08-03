@@ -24,12 +24,13 @@ export default function IntroAnimation({ href }: { href?: string } = {}) {
 
   useEffect(() => {
     // Mobile (<1024px): skip the REONU intro animation entirely.
-    // Snap header elements to visible immediately so the header is usable.
+    // Hide the fixed overlay elements so they don't cover mobile content.
+    // Snap header logo/tagline to visible immediately so the header is usable.
     if (window.innerWidth < 1024) {
-      const logo    = document.getElementById("header-logo");
-      const tagline = document.getElementById("header-tagline");
-      if (logo)    { logo.style.opacity = "1"; logo.style.pointerEvents = "auto"; }
-      if (tagline) { tagline.style.opacity = "1"; tagline.style.pointerEvents = "auto"; }
+      if (wrapRef.current)    wrapRef.current.style.display    = "none";
+      if (taglineRef.current) taglineRef.current.style.display = "none";
+      // Do NOT touch #header-logo / #header-tagline opacity on mobile.
+      // MobileIntroAnimation controls those elements via inline !important.
       return;
     }
 
@@ -158,8 +159,10 @@ export default function IntroAnimation({ href }: { href?: string } = {}) {
   return (
     <>
       {/* REONU — static position via CSS vw units, animation via transform only */}
+      {/* intro-desktop-only: hidden on mobile via globals.css media query (CSS-level, no hydration flash) */}
       <div
         ref={wrapRef}
+        className="intro-desktop-only"
         {...(href ? { onClick: () => { window.location.href = href; } } : {})}
         style={{
           position:           "fixed",
@@ -218,7 +221,7 @@ export default function IntroAnimation({ href }: { href?: string } = {}) {
       {/* Tagline — static position via CSS vw units, animation via transform only */}
       <div
         ref={taglineRef}
-        className="font-display-headline"
+        className="font-display-headline intro-desktop-only"
         style={{
           position:           "fixed",
           top:                TOP_L,

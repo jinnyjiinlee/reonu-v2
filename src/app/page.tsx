@@ -11,6 +11,7 @@ import LetsTalkForm from "@/components/LetsTalkForm";
 import FooterReveal from "@/components/FooterReveal";
 import ScaleStage from "@/components/ScaleStage";
 import MobileHome from "@/components/mobile/MobileHome";
+import MobileIntroAnimation from "@/components/mobile/MobileIntroAnimation";
 
 // Pricing at HEADING_CANVAS_Y=8440 (was 8290, Δ=+150). LetsTalkForm shifts accordingly.
 const PRICING_SHIFT = 1362;
@@ -33,6 +34,10 @@ export default function Page() {
       <Header />
 
       {/* ── Mobile layout (<1024px) ──────────────────────────────────────── */}
+      {/* MobileIntroAnimation: fixed REONU overlay that scrolls into the header.
+          Rendered before MobileHome so its useEffect runs before IntroAnimation's
+          mobile early-return, ensuring correct final logo opacity state. */}
+      <MobileIntroAnimation />
       <MobileHome />
 
       {/* ── Desktop layout (≥1024px) ─────────────────────────────────────── */}

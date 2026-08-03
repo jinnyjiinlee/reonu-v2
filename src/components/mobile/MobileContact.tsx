@@ -134,10 +134,15 @@ function ContactForm({ lang }: { lang: "ko" | "en" }) {
       {/* Service */}
       <div>
         <label style={labelStyle}>{ko ? "의뢰 분야" : "Service"}</label>
-        <select value={scope} onChange={e => setScope(e.target.value)} style={{ ...inputStyle, cursor: "pointer", appearance: "none" as const }}>
-          <option value="">{ko ? "선택해주세요" : "Select a service"}</option>
-          {scopeOpts.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ position: "relative" }}>
+          <select value={scope} onChange={e => setScope(e.target.value)} style={{ ...inputStyle, paddingRight: 40, cursor: "pointer", appearance: "none" as const }}>
+            <option value="">{ko ? "선택해주세요" : "Select a service"}</option>
+            {scopeOpts.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#86868B" }}>
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
       {/* Message */}
       <div>
@@ -148,18 +153,28 @@ function ContactForm({ lang }: { lang: "ko" | "en" }) {
       {/* Budget */}
       <div>
         <label style={labelStyle}>{ko ? "예산" : "Budget"}</label>
-        <select value={budget} onChange={e => setBudget(e.target.value)} style={{ ...inputStyle, cursor: "pointer", appearance: "none" as const }}>
-          <option value="">{ko ? "예산 범위 선택" : "Select budget range"}</option>
-          {budgetOpts.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ position: "relative" }}>
+          <select value={budget} onChange={e => setBudget(e.target.value)} style={{ ...inputStyle, paddingRight: 40, cursor: "pointer", appearance: "none" as const }}>
+            <option value="">{ko ? "예산 범위 선택" : "Select budget range"}</option>
+            {budgetOpts.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#86868B" }}>
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
       {/* Timing */}
       <div>
         <label style={labelStyle}>{ko ? "희망 시기" : "Preferred Timing"}</label>
-        <select value={timing} onChange={e => setTiming(e.target.value)} style={{ ...inputStyle, cursor: "pointer", appearance: "none" as const }}>
-          <option value="">{ko ? "시작 시기 선택" : "Select preferred timing"}</option>
-          {timingOpts.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
+        <div style={{ position: "relative" }}>
+          <select value={timing} onChange={e => setTiming(e.target.value)} style={{ ...inputStyle, paddingRight: 40, cursor: "pointer", appearance: "none" as const }}>
+            <option value="">{ko ? "시작 시기 선택" : "Select preferred timing"}</option>
+            {timingOpts.map(o => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#86868B" }}>
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
       </div>
       {/* Email */}
       <div>
@@ -225,7 +240,7 @@ export default function MobileContact() {
         <h1 style={{ fontSize: "clamp(40px, 12vw, 64px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: C.ink }}>
           Let&apos;s Talk
         </h1>
-        <p style={{ fontSize: 16, color: C.body, marginBottom: 40, lineHeight: "170%" }}>
+        <p style={{ fontSize: 16, color: C.body, marginBottom: 40, lineHeight: "170%", whiteSpace: "pre-line" }}>
           {ko ? "아이디어, 목표, 혹은 해결하고 싶은 과제가 있으신가요?\n함께 특별한 결과물을 만들어가겠습니다." : "Have an idea, a goal, or a challenge to solve?\nLet's create something remarkable together."}
         </p>
         <ContactForm lang={lang} />

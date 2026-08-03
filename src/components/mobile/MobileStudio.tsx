@@ -175,7 +175,7 @@ export default function MobileStudio() {
                   <h3 style={{ fontSize: "clamp(28px, 8vw, 40px)", fontWeight: 800, letterSpacing: "-0.04em", margin: 0, color: C.ink }}>
                     {v.title}
                   </h3>
-                  <span style={{ fontSize: "clamp(18px, 5vw, 24px)", fontWeight: 700, color: C.panel }}>
+                  <span style={{ fontSize: "clamp(13px, 3.5vw, 16px)", fontWeight: 600, color: C.muted, letterSpacing: "-0.01em" }}>
                     {v.ko_label}
                   </span>
                 </div>
@@ -211,7 +211,7 @@ export default function MobileStudio() {
       {/* ── Careers section ───────────────────────────────────────────────── */}
       <section style={{ padding: "72px 24px" }}>
         <SectionLabel>Careers</SectionLabel>
-        <h2 style={{ fontSize: "clamp(36px, 10vw, 56px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, margin: "16px 0 40px", color: C.ink }}>
+        <h2 style={{ fontSize: "clamp(36px, 10vw, 56px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, margin: "16px 0 40px", color: C.ink, whiteSpace: "pre-line" }}>
           {ko ? "포트폴리오 &\n경력 사항" : "Portfolio &\nExperience"}
         </h2>
 
