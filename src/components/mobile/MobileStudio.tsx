@@ -164,9 +164,9 @@ export default function MobileStudio() {
       </div>
 
       {/* ── Our Values ────────────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
+      <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Our Values</SectionLabel>
-        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 0 }}>
+        <div style={{ marginTop: 48, display: "flex", flexDirection: "column", gap: 0 }}>
           {VALUES.map((v, i) => (
             <div key={v.title}>
               {i > 0 && <Divider />}
@@ -209,9 +209,9 @@ export default function MobileStudio() {
       </div>
 
       {/* ── Careers section ───────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
+      <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Careers</SectionLabel>
-        <h2 style={{ fontSize: "clamp(36px, 10vw, 56px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, margin: "16px 0 40px", color: C.ink, whiteSpace: "pre-line" }}>
+        <h2 style={{ fontSize: "clamp(36px, 10vw, 56px)", fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, margin: "20px 0 48px", color: C.ink, whiteSpace: "pre-line" }}>
           {ko ? "포트폴리오 &\n경력 사항" : "Portfolio &\nExperience"}
         </h2>
 

@@ -236,7 +236,7 @@ export default function MobileContact() {
       </div>
 
       {/* ── Let's Talk Form ───────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
+      <section style={{ padding: "80px 24px" }}>
         <h1 style={{ fontSize: "clamp(40px, 12vw, 64px)", fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: C.ink }}>
           Let&apos;s Talk
         </h1>

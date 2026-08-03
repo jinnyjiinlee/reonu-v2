@@ -464,10 +464,10 @@ export default function MobileHome() {
           sits naturally below it without an artificial 100dvh gap. */}
       <section style={{
         paddingTop: "calc(64px + 48px + clamp(64px, 20vw, 100px) + 32px)",
-        paddingBottom: "48px",
+        paddingBottom: "64px",
         paddingLeft: "24px",
         paddingRight: "24px",
-        display: "flex", flexDirection: "column", gap: "32px",
+        display: "flex", flexDirection: "column", gap: "48px",
       }}>
         <div>
           {/* REONU® heading removed — MobileIntroAnimation renders it as a fixed
@@ -495,8 +495,8 @@ export default function MobileHome() {
       </section>
 
       {/* ── Selected Work ─────────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
+      <section style={{ padding: "80px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
           <SectionLabel>Selected Work</SectionLabel>
           <Link href="/works" style={{
             fontSize: 13, fontWeight: 600, color: C.ink,
@@ -543,8 +543,8 @@ export default function MobileHome() {
       </section>
 
       {/* ── Our Services ──────────────────────────────────────────────────── */}
-      <section style={{ paddingTop: 72, paddingBottom: 72 }}>
-        <div style={{ paddingLeft: 24, paddingRight: 24, marginBottom: 8 }}>
+      <section style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div style={{ paddingLeft: 24, paddingRight: 24, marginBottom: 32 }}>
           <SectionLabel>Our Services</SectionLabel>
         </div>
         {svcList.map((svc) => (
@@ -554,9 +554,9 @@ export default function MobileHome() {
       </section>
 
       {/* ── Our Process ───────────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
+      <section style={{ padding: "80px 24px" }}>
         <SectionLabel>Our Process</SectionLabel>
-        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 56 }}>
+        <div style={{ marginTop: 48, display: "flex", flexDirection: "column", gap: 64 }}>
           {processSteps.map((step) => (
             <MobileProcessStep key={step.num} step={step} lang={lang} />
           ))}
@@ -564,8 +564,8 @@ export default function MobileHome() {
       </section>
 
       {/* ── Partners ──────────────────────────────────────────────────────── */}
-      <section style={{ paddingTop: 72, paddingBottom: 72 }}>
-        <div style={{ paddingLeft: 24, marginBottom: 32 }}>
+      <section style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div style={{ paddingLeft: 24, marginBottom: 40 }}>
           <SectionLabel>Our Partners</SectionLabel>
         </div>
         <MarqueeRow logos={partnersRowA} direction={1} />
@@ -573,12 +573,12 @@ export default function MobileHome() {
       </section>
 
       {/* ── Pricing ───────────────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px", background: C.panel }}>
+      <section style={{ padding: "80px 24px", background: C.panel }}>
         <SectionLabel>Pricing</SectionLabel>
         <h2 style={{
           fontSize: "clamp(32px, 9vw, 48px)", fontWeight: 800,
           letterSpacing: "-0.04em", lineHeight: 1.1,
-          margin: "16px 0 40px", color: C.ink,
+          margin: "20px 0 48px", color: C.ink,
           whiteSpace: "pre-line",
         }}>
           {ko ? "서비스를\n시작해보세요." : "Start your\nproject today."}
@@ -605,7 +605,7 @@ export default function MobileHome() {
       </section>
 
       {/* ── Let's Talk Form ───────────────────────────────────────────────── */}
-      <section style={{ padding: "72px 24px" }}>
+      <section style={{ padding: "80px 24px" }}>
         <h2 style={{
           fontSize: "clamp(40px, 12vw, 64px)", fontWeight: 800,
           letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16, color: C.ink,
