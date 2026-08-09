@@ -48,7 +48,7 @@ export default function MobileWorkDetail({ item, next }: { item: WorkItem; next:
 
       {/* ── Project info (hero text area) ─────────────────────────────────── */}
       <section style={{
-        paddingTop: "calc(64px + 48px)",
+        paddingTop: "calc(54px + 48px)",
         paddingLeft: 24, paddingRight: 24, paddingBottom: 48,
       }}>
         <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", color: C.muted, textTransform: "uppercase", marginBottom: 16 }}>

@@ -126,7 +126,7 @@ export default function MobileStudio() {
     <div className="lg:hidden font-headline" style={{ background: C.paper, color: C.ink }}>
 
       {/* ── Hero text (from StudioHeroIntro) ──────────────────────────────── */}
-      <section style={{ minHeight: "60dvh", padding: "calc(64px + 48px) 24px 48px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+      <section style={{ minHeight: "60dvh", padding: "calc(54px + 48px) 24px 48px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         <div>
           <h1 style={{ fontSize: "clamp(64px, 20vw, 96px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 32 }}>
             REONU®

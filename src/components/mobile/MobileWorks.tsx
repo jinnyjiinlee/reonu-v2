@@ -52,7 +52,7 @@ export default function MobileWorks() {
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section style={{
-        paddingTop: "calc(64px + 48px)",
+        paddingTop: "calc(54px + 48px)",
         paddingLeft: 24, paddingRight: 24, paddingBottom: 48,
       }}>
         <h1 style={{ fontSize: "clamp(48px, 14vw, 80px)", fontWeight: 800, lineHeight: 0.95, letterSpacing: "-0.05em", marginBottom: 20 }}>

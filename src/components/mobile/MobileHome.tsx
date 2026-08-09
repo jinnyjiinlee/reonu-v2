@@ -467,7 +467,7 @@ export default function MobileHome() {
           No minHeight — the large REONU overlay fills visual space; the text content
           sits naturally below it without an artificial 100dvh gap. */}
       <section style={{
-        paddingTop: "calc(64px + 48px + clamp(64px, 20vw, 100px) + 32px)",
+        paddingTop: "calc(54px + 48px + clamp(64px, 20vw, 100px) + 32px)",
         paddingBottom: "64px",
         paddingLeft: "24px",
         paddingRight: "24px",

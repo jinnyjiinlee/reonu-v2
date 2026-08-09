@@ -233,7 +233,7 @@ export default function MobileContact() {
     <div className="lg:hidden font-headline" style={{ background: C.paper, color: C.ink }}>
 
       {/* ── Hero image ────────────────────────────────────────────────────── */}
-      <div style={{ paddingTop: 64 }}>
+      <div style={{ paddingTop: 54 }}>
         <div style={{ position: "relative", width: "100%", aspectRatio: "16/10", overflow: "hidden", background: C.panel }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/studio/contact-bg.jpg" alt="REONU Studio" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />

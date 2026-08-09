@@ -15,7 +15,7 @@ import { useEffect, useRef } from "react";
  *  - backfaceVisibility: hidden → prevents layer promotion churn
  */
 
-const HEADER_H  = 64;
+const HEADER_H  = 54;
 const LOGO_FS   = 20;          // matches FS_LOGO in Header.tsx
 const OVERLAY_L = 24;          // px — matches content section padding
 const THRESHOLD = 300;         // px of scroll to complete animation (longer = more room to ease)
